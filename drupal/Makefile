@@ -38,7 +38,7 @@ drupal-help:
 	@echo
 
 # Install drupal with mica/agate related modules for development
-drupal: drupal-clean setup-drupal enable-modules setup-dependencies update-composer-autoload cc
+drupal: drupal-clean setup-drupal enable-modules update-composer-autoload cc
 
 # Install drupal with mica/agate related modules for production
 drupal-release: drupal-clean setup-drupal-release enable-modules-release-branch update-composer-autoload cc
@@ -114,7 +114,7 @@ htaccess:
 # Mica related Modules
 #
 
-enable-modules: enable-bootstrap enable-mica enable-angular-app enable-data-access enable-research-project enable-charts-google
+enable-modules: enable-bootstrap enable-mica bower-prepare-drupal-libraries enable-angular-app setup-dependencies remove-bower-components enable-data-access enable-research-project enable-charts-google
 
 # Enabled modules for a snapshot environment
 enable-modules-snapshot: enable-bootstrap enable-mica enable-data-access enable-research-project enable-graphics enable-charts-google download-dependencies-snapshot update-composer-autoload jquery_update
@@ -136,13 +136,20 @@ enable-mica:
 	cd $(drupal_dir) && \
 	drush en -y obiba_mica
 
-enable-angular-app:
+bower-prepare-drupal-libraries:
+	cd $(drupal_dir)/sites/all/libraries/ &&\
+	rm -rf $(drupal_dir)/sites/all/libraries/* &&\
 	cd $(drupal_dir)/sites/all/modules/obiba_mica && \
-	bower --allow-root install && \
-	rm -rf $(drupal_dir)/sites/all/libraries/angular-app && \
+	bower --allow-root install
+
+enable-angular-app:
 	mkdir $(drupal_dir)/sites/all/libraries/angular-app && \
-	mv bower_components/* $(drupal_dir)/sites/all/libraries/angular-app/ && \
-	rm -rf  bower_components
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/* $(drupal_dir)/sites/all/libraries/angular-app/ && \
+	cd $(drupal_dir)/sites/all/libraries/angular-app/ && \
+	rm -rf  datatables && \
+	rm -rf  datatables-plugins && \
+	rm -rf  obiba-progressbar && \
+	rm -rf  mica-study-timeline
 
 enable-data-access:
 	cd $(drupal_dir) && \
@@ -171,7 +178,7 @@ download-dependencies-snapshot:
 	cd $(drupal_dir) && \
 	drush download-mica-dependencies --repo=$(mica_js_dependencies_branch)
 
-setup-dependencies: jquery_update datatables obiba-progressbar obiba-timeline
+setup-dependencies: jquery_update datatables-download obiba-progressbar obiba-timeline
 
 chart-enable:
 	cd $(drupal_dir) && \
@@ -183,24 +190,20 @@ jquery_update:
 	drush vset -y --format=string jquery_update_jquery_version 1.10 && \
 	drush vset -y --format=string jquery_update_jquery_admin_version 1.10
 
-datatables: datatables-download datatables-plugins-download
-
 datatables-download:
-	cd $(drupal_dir) && \
-	drush datatables-download
-
-datatables-plugins-download:
-	cd $(drupal_dir) && \
-	drush datatables-plugins-download
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/datatables $(drupal_dir)/sites/all/libraries/
+	mkdir $(drupal_dir)/sites/all/libraries/datatables/extensions/Plugins && \
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/datatables-plugins/* $(drupal_dir)/sites/all/libraries/datatables/extensions/Plugins/
 
 obiba-progressbar:
-	cd $(drupal_dir) && \
-	drush obiba-progressbar-download $(obiba-progressbar-version)
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/obiba-progressbar $(drupal_dir)/sites/all/libraries/
 
 obiba-timeline:
-	cd $(drupal_dir) && \
-	drush mica-study-timeline-download $(obiba-timeline-version)
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/mica-study-timeline $(drupal_dir)/sites/all/libraries/ && \
+	cp -r $(drupal_dir)/sites/all/modules/obiba_mica/bower_components/d3/d3.min.js $(drupal_dir)/sites/all/libraries/mica-study-timeline/dist/
 
+remove-bower-components:
+	rm -rf  $(drupal_dir)/sites/all/modules/obiba_mica/bower_components
 #
 # Additional modules
 #
