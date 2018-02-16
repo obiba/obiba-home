@@ -1,5 +1,5 @@
 target/
 .idea
-integration_test/backstop_data/
-integration_test/node_modules/
-integration_test/package-lock.json
+visual_regression/backstop_data/
+visual_regression/node_modules/
+visual_regression/package-lock.json
