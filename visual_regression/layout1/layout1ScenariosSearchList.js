@@ -7,14 +7,6 @@ var  querySelectors =  [
     '.search-browser > .panel-body  a.btn-xs'
   ];
 
-  function clickSelectorToQuery(selectors){
-    var query = querySelectors.slice();
-    selectors.map(function(selector){
-      query.push(selector);
-    });
-    return query;
-    }
-
 function filterSelectorClick(label) {
   return 'div.list-table > div.tab-content > div:nth-of-type(1) > div.btn > label:nth-of-type( ' + label + ')';
 }
@@ -157,6 +149,15 @@ var scenarios = [
     "label": "Search page list dataset click networks count ",
     "path": pagePathQuery + "&type=datasets",
     "clicksSelectors": [resultTableSelectorClick(2),xPathToCss('//tr[2]//td[4]//a')],
+    "delay": 'searchLoad'
+  },
+  {
+    "label": "Search page test free search box alcohol",
+    "path": pagePathQuery,
+    "inputText": {
+      "selector" : "div#search-box-region input[type=\"text\"]",
+      "text": "alcohol"
+    },
     "delay": 'searchLoad'
   }
 ];

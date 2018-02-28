@@ -82,6 +82,15 @@ var scenarios = [
     "path": pagePath,
     "clicksSelectors": openAllPanel(),
     "delay" : 'searchLoad',
+  },
+  {
+    "label": "collected Studies List Page input text search atlantic",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "atlantic"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 module.exports = scenarios;

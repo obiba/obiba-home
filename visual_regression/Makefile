@@ -44,6 +44,7 @@ test-help:
 install-test: 
 	echo "backstopjs installtion dependecies" && \
 	npm install backstopjs -g && \
+	npm install minimist && \
 	npm install  xpath-to-css 
 	
 
@@ -68,11 +69,12 @@ site-report:
 
 site-approve:
 	pushd $(backstop_dir) && \
+	$(call switch-layout,$(layout_dev)) && \
 	backstop approve --configPath=backstop.js --scenariosSet=$(scenario).js --host=$(host) --referenceUrl=$(referenceUrl) --lagServer=$(lagServer) --testFolder=$(scenario) --layout=$(layout) && popd
 
 reference-dev:
-	pushd $(backstop_dir)  && rm -rf backstop_data/bitmaps* backstop_data/html* && \
-	$(call switch-layout,$(layout)) && \
+	pushd $(backstop_dir) && \
+	$(call switch-layout,$(layout_dev)) && \
 	backstop reference --configPath=backstop.js --dev=$(dev) --scenariosSet=$(dev_scenario).js --host=$(host) --referenceUrl=$(referenceUrl) --lagServer=$(lagServer) --testFolder=$(dev_scenario) --layout=$(layout_dev) && popd
 
 test-dev:

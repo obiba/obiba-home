@@ -57,6 +57,15 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": counClick('2', 'networkCount'),
     "delay" : 'searchLoad',
+  },
+  {
+    "label": "Harmonization Studies List Page input text search cptp",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "cptp"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 

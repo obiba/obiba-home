@@ -1,7 +1,3 @@
-var xPathToCss = require('xpath-to-css');
-function clickOnSelector(){
-  return xPathToCss('//button[@id="SortOrder"]');
-}
 
 function counClick(network, countLabel){
   return "div[test-ref='network']:nth-child(" + network + ") > div:nth-child(2) > div.countDetail > a[test-ref='" + countLabel + "']";
@@ -81,6 +77,15 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": counClick('2', 'datasetCount'),
     "delay" : 'searchLoad'
+  },
+  {
+    "label": "Networks List Page input text search ialsa",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "ialsa"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 

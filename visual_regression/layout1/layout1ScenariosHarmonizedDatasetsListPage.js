@@ -45,6 +45,15 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": counClick('2', 'variableCount'),
     "delay" : 'searchLoad',
+  },
+  {
+    "label": "Harmonized Datasets List Page input text search chpt",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "chpt"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 

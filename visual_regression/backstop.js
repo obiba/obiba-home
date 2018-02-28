@@ -7,7 +7,7 @@
 
 const searchLoad = 4000;
 const delayOnPage = 1000;
-const detailPageLoad = 1500;
+const detailPageLoad = 3000;
 const removeSelectors = [".navbar-fixed-top", "#fullSearch", "footer.footer"];
 
 function getSpecDelay(sepcDelay){
@@ -90,6 +90,11 @@ if (scenariosSet) {
         "selectorExpansion": false
       });
     }
+    if (scenario.inputText) {
+      defaultSetting = Object.assign(defaultSetting, {
+        "inputText": scenario.inputText
+      });
+    }
     if (scenario.onReadyScript) {
       defaultSetting = Object.assign(defaultSetting, {
         "onReadyScript": scenario.onReadyScript
@@ -100,7 +105,7 @@ if (scenariosSet) {
   });
 }
 if(dev){
-  console.log(JSON.stringify(scenarios));
+  console.log('Scenarios =====>', JSON.stringify(scenarios));
 }
 // BackstopJS configuration
 module.exports =

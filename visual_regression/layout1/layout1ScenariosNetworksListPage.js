@@ -81,6 +81,15 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": counClick('2', 'datasetCount'),
     "delay" : 'searchLoad'
+  },
+  {
+    "label": "Networks List Page input text search ialsa",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "ialsa"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 

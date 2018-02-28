@@ -51,6 +51,15 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": counClick('2', 'variableCount'),
     "delay" : 'searchLoad',
+  },
+  {
+    "label": "Collected Datasets List Page input text search wave",
+    "path": pagePath,
+    "inputText": {
+      "selector" : "entity-search-typeahead input[type=\"search\"]",
+      "text": "wave"
+    },
+    "delay" : 'searchLoad',
   }
 ];
 

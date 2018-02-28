@@ -54,9 +54,30 @@ var scenarios = [
   {
     "label": "Search page Sociodemographic_economic_age",
     "path": "/mica/repository#/search",
-    "clicksSelectors": [taxoPanelSelectorClick(1, 1), "#term-Sociodemographic_economic_characteristics-0", resultTableSelectorClick(1)],
+    "clicksSelectors": [taxoPanelSelectorClick(1, 1), "vocabulary-filter-detail:nth-child(1) terms-vocabulary-filter-detail > div:nth-child(1) div.checkbox > label", resultTableSelectorClick(1)],
+    "delay": 'searchLoad'
+  },
+  {
+    "label": "Search page filter age in Areas of information",
+    "path": "/mica/repository#/search",
+    "clickSelector": taxoPanelSelectorClick(1, 1),
+    "inputText": {
+      "selector" : "input.input-search-filter",
+      "text": "age"
+    },
+    "delay": 'searchLoad'
+  },
+  {
+    "label": "Search page filter participant in target and source",
+    "path": "/mica/repository#/search",
+    "clickSelector": taxoPanelSelectorClick(1, 2),
+    "inputText": {
+      "selector" : "input.input-search-filter",
+      "text": "participant"
+    },
     "delay": 'searchLoad'
   }
+
 ];
 
 module.exports = scenarios;

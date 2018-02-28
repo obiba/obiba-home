@@ -97,8 +97,7 @@ var scenarios = [
     "path": pagePath,
     "clickSelector": tabSelectorClick(3),
     "delay": 'searchLoad'
-  }
-  ,
+  },
   {
     "label": "Search page click to graphics then return to list",
     "path": pagePath,

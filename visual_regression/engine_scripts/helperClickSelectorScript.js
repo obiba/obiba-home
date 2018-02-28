@@ -1,24 +1,27 @@
 module.exports = function (chromy, scenario) {
-  var slectorsClicks = scenario.clicksSelectors
-  var slectorstoHide = scenario.removeSelectors
+  var slectorsClicks = scenario.clicksSelectors;
   var clickSelector = scenario.clickSelector;
-
+  var inputText = scenario.inputText;
   if (clickSelector) {
     chromy
-      .sleep(1000)
-      .wait(clickSelector)
+      .sleep(600)
       .click(clickSelector)
-      .sleep(500);
+      .sleep(600);
   }
 
   if(slectorsClicks){
     slectorsClicks.forEach(function(selectorClick){
       chromy
-        .sleep(500)
         .wait(selectorClick)
         .click(selectorClick)
-        .sleep(500);
+        .sleep(600);
     });
+  }
+
+  if(inputText){
+    chromy
+      .type(inputText.selector, inputText.text)
+      .sleep(600);
   }
 
   var postInteractionWait = scenario.postInteractionWait;
