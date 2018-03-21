@@ -1,8 +1,11 @@
 #
 # Drupal
 #
-drupal_version = 7.56
+drupal_version = 7.57
 drupal_dir=$(CURDIR)/target/drupal
+
+admin_user=administrator
+admin_password=password
 
 #
 # Mysql db access
@@ -44,18 +47,18 @@ drupal-release: drupal-clean setup-drupal-release enable-modules-release-branch 
 # Install drupal with mica/agate related modules from snapshot
 drupal-snapshot: drupal-clean setup-drupal-snapshot
 
-# Prepare drupal installation, for making a clean reference SQL database
+# Prepare drupal installation, and make a clean reference SQL database
 drupal-empty: drupal-clean setup-drupal-empty
 
 drupal-clean:
-	rm -rf $(drupal_dir)
+	sudo rm -rf $(drupal_dir)
 
 #
 # Drupal
 #
 
 # Empty
-setup-drupal-empty: prepare-drupal  create-sql www
+setup-drupal-empty: prepare-drupal  create-sql drupal-first-install dump-sql
 
 # Development
 setup-drupal: prepare-drupal  import-sql finalize-drupal www
@@ -94,6 +97,11 @@ dump-sql:
 
 create-sql:
 	mysql -h $(db_host) -u $(db_user) --password=$(db_pass) -e "drop database if exists $(db_name); create database $(db_name);"
+
+drupal-first-install:
+	pushd $(drupal_dir) && \
+	drush site-install standard --account-name=$(admin_user) --account-pass=$(admin_password) --db-url=mysql://$(db_user):$(db_pass)@$(db_host)/$(db_name) --site-name="Obiba Mica" -y && \
+	popd
 
 import-sql: create-sql import-sql-tables
 
