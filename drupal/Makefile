@@ -120,13 +120,13 @@ htaccess:
 # Mica related Modules
 #
 
-enable-modules: enable-bootstrap enable-mica bower-prepare-drupal-libraries enable-angular-app download-lib-dependencies remove-bower-components jquery_update enable-data-access enable-research-project
+enable-modules: enable-bootstrap enable-mica bower-prepare-drupal-libraries enable-angular-app download-lib-dependencies remove-bower-components jquery_update enable-data-access enable-research-project enable-sets enable-analysis
 
 # Enabled modules for a snapshot environment
-enable-modules-snapshot: enable-bootstrap enable-mica enable-data-access enable-research-project enable-graphics download-dependencies-snapshot update-composer-autoload jquery_update
+enable-modules-snapshot: enable-bootstrap enable-mica enable-data-access enable-research-project enable-graphics enable-sets enable-analysis download-dependencies-snapshot update-composer-autoload jquery_update
 
 # Enabled modules for a production environment
-enable-modules-release-branch: enable-bootstrap enable-mica enable-data-access enable-graphics download-dependencies update-composer-autoload jquery_update
+enable-modules-release-branch: enable-bootstrap enable-mica enable-data-access enable-graphics enable-sets enable-analysis download-dependencies update-composer-autoload jquery_update
 
 enable-bootstrap:
 	cd $(drupal_dir) && \
@@ -164,6 +164,14 @@ enable-research-project:
 enable-graphics:
 	cd $(drupal_dir) && \
 	drush en -y obiba_mica_graphic
+
+enable-sets:
+	cd $(drupal_dir) && \
+	drush en -y obiba_mica_sets
+
+enable-analysis:
+	cd $(drupal_dir) && \
+	drush en -y obiba_mica_analysis
 
 deploy-dependencies:
 	$(call deploy-js-libraries-by-branch,$(mica_js_dependencies_branch))
