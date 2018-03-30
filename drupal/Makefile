@@ -155,23 +155,23 @@ enable-angular-app:
 
 enable-data-access:
 	cd $(drupal_dir) && \
-	drush en -y obiba_mica_data_access_request
+	drush en -y obiba_mica_data_access_request; true
 
 enable-research-project:
 	cd $(drupal_dir) && \
-	drush en -y obiba_mica_research_project
+	drush en -y obiba_mica_research_project; true
 
 enable-graphics:
 	cd $(drupal_dir) && \
-	drush en -y obiba_mica_graphic
+	drush en -y obiba_mica_graphic; true
 
 enable-sets:
 	cd $(drupal_dir) && \
-	drush en -y obiba_mica_sets
+	drush en -y obiba_mica_sets; true
 
 enable-analysis:
 	cd $(drupal_dir) && \
-	drush en -y obiba_mica_analysis
+	drush en -y obiba_mica_analysis; true
 
 deploy-dependencies:
 	$(call deploy-js-libraries-by-branch,$(mica_js_dependencies_branch))
