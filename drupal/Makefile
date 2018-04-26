@@ -1,7 +1,7 @@
 #
 # Drupal
 #
-drupal_version = 7.58
+drupal_version = 7.59
 drupal_dir=$(CURDIR)/target/drupal
 
 admin_user=administrator
