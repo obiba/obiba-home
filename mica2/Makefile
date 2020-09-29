@@ -17,7 +17,7 @@ mica-help:
 	@echo "Available make targets:"
 	@echo "  seed-mica : Seed mica server"
 
-seed-mica: seed-studies seed-datasets index-taxonomies
+seed-mica: seed-studies seed-datasets seed-research-projects index-taxonomies
 
 seed-studies: seed-individual-studies seed-harmonization-studies seed-people
 
@@ -82,6 +82,10 @@ seed-harmonized-datasets:
 seed-people:
 	find ./mica2/seed/people -type f -execdir curl -k -s -o /dev/null --show-error --fail -X POST -H "Content-Type: application/json" -H "Accept: application/json" ${mica_url}/ws/draft/persons -d @{} -u ${username}:${password} \;
 
+seed-research-projects:
+	$(call research-project-create,eczema)
+	$(call research-project-create,lung-cancer)
+
 index-taxonomies:
 	mica rest -mk $(mica_url) -u $(username) -p $(password) /taxonomies/_index -m PUT
 
@@ -98,3 +102,6 @@ launch-mica-debug:
 #
 dataset-create = mica rest -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/$(1)-datasets --content-type "application/json" < ./mica2/seed/$(1)-datasets/$(2).json && \
 	mica rest -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/$(1)-dataset/$(2)/_publish
+
+research-project-create = mica rest -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/projects --content-type "application/json" < ./mica2/seed/projects/$(1).json && \
+	mica rest -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/project/$(1)/_publish

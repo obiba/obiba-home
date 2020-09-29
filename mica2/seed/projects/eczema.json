@@ -1,0 +1,16 @@
+{
+  "content": "{\"name\":\"Dr. Aaron Drucker\",\"institution\":\"Department of Dermatology\\nBrown University\\nProvidence, RI\\nUnited States\",\"startDate\":\"2016-12-15\",\"endDate\":\"2017-03-31\"}",
+  "id": "eczema",
+  "summary": [
+    {
+      "lang": "en",
+      "value": "Eczema, also known as atopic dermatitis, is a common skin condition that has been associated with risk factors for heart disease and stroke. Very few studies have actually looked at whether eczema predisposes people to develop heart attacks or strokes. We plan to use data from the Canadian Partnership for Tomorrow Project to investigate whether having eczema makes people more likely to develop high blood pressure, diabetes, heart attacks or strokes. We expect to find that people with eczema do develop high blood pressure, diabetes, heart attacks and strokes more than people without eczema. If our findings are consistent with our expectations, that would lead to further research into why people with eczema are at higher risk and efforts to decrease the risk of those conditions in patients with eczema."
+    }
+  ],
+  "title": [
+    {
+      "lang": "en",
+      "value": "Association between eczema and cardiovascular and cerebrovascular morbidity"
+    }
+  ]
+}
