@@ -1,0 +1,8 @@
+{
+  "name": "exposomeSet",
+  "project": "EXPOSOME",
+  "provider": "resourcer",
+  "factory": "http-rdata-file",
+  "parameters": "{\"url\":\"https://github.com/isglobal-brge/dsExposomeClient/raw/master/data/exposomeSet.Rdata\", \"format\":\"ExposomeSet\"}",
+  "credentials": "{\"username\":\"\", \"password\":\"\"}"
+}

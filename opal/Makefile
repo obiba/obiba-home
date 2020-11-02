@@ -78,7 +78,9 @@ seed-datashield:
 	$(call project-create,TESTING,DataSHIELD)
 	$(call tables-import,TESTING)
 
-seed-resources:
+seed-resources: seed-rsrc-resources seed-exposome-resources
+
+seed-rsrc-resources:
 	$(call project-create,RSRC,Resources)
 	$(call resource-create,RSRC,GSE66351_1)
 	$(call resource-create,RSRC,GSE66351_2)
@@ -104,6 +106,13 @@ seed-resources:
 	$(call file-upload,opal/seed/data/gps_data_final.RData,/projects/RSRC)
 	$(call file-upload,opal/seed/data/gps_participant.RData,/projects/RSRC)
 	$(call file-upload,opal/seed/data/takeaway_data.RData,/projects/RSRC)
+
+seed-exposome-resources:
+	$(call project-create,EXPOSOME,Resources)
+	$(call resource-create,EXPOSOME,description)
+	$(call resource-create,EXPOSOME,exposomeSet)
+	$(call resource-create,EXPOSOME,exposures)
+	$(call resource-create,EXPOSOME,phenotypes)
 
 seed-auth:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/token.json
