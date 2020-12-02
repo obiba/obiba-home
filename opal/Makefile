@@ -6,6 +6,7 @@ username=administrator
 password=password
 taxonomies_ref=1.0
 taxonomies_key=4929750633404868
+dsusername=dsuser
 
 # Database name in opal
 database=opal_data
@@ -114,11 +115,21 @@ seed-exposome-resources:
 	$(call resource-create,EXPOSOME,exposures)
 	$(call resource-create,EXPOSOME,phenotypes)
 
-seed-auth:
+seed-auth: seed-user seed-perm
+
+seed-user:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/token.json
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa password -a
+
+seed-perm:
+	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr CNSIM -pe view -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr DASIM -pe view -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr DISCORDANT -pe view -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr SURVIVAL -pe view -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr TESTING -pe view -a
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/RSRC/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
-	opal user -o $(opal_url) -u $(username) -p $(password) -n dsuser -upa password -a
-	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s dsuser -ty user -pe use -a
+	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/EXPOSOME/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
 
 seed-taxonomies:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
