@@ -99,6 +99,8 @@ seed-rsrc-resources:
 	$(call resource-create,RSRC,gps_data)
 	$(call resource-create,RSRC,gps_participant)
 	$(call resource-create,RSRC,takeaway_gps)
+	$(call resource-create,RSRC,ga4gh_1000g)
+	$(call resource-create,RSRC,EGA)
 	sudo mkdir -p $(rserver_home)/data
 	sudo cp opal/seed/data/CNSIM2.zsav $(rserver_home)/data
 	sudo cp opal/seed/data/GSE80970.Rdata $(rserver_home)/data

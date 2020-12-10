@@ -1,0 +1,8 @@
+{
+  "name": "EGA",
+  "project": "RSRC",
+  "provider": "dsOmics",
+  "factory": "ega-htsget",
+  "parameters": "{\"file\":\"EGAF00001753756\", \"reference\":\"chr21\", \"start\":\"1\", \"end\":\"100\", \"format\":\"EGAhtsgetBAM\"}",
+  "credentials": "{\"user\":\"ega-test-data@ebi.ac.uk\", \"pass\":\"egarocks\"}"
+}

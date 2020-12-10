@@ -1,0 +1,8 @@
+{
+  "name": "ga4gh_1000g",
+  "project": "RSRC",
+  "provider": "dsOmics",
+  "factory": "ga4gh-htsget",
+  "parameters": "{\"host\":\"https://htsget.ga4gh.org\", \"sample\":\"1000genomes.phase1.chr1\", \"reference\":\"1\", \"start\":\"1\", \"end\":\"100000\", \"format\":\"GA4GHVCF\"}",
+  "credentials": "{}"
+}
