@@ -79,7 +79,7 @@ seed-datashield:
 	$(call project-create,TESTING,DataSHIELD)
 	$(call tables-import,TESTING)
 
-seed-resources: seed-rsrc-resources seed-exposome-resources
+seed-resources: seed-rsrc-resources seed-exposome-resources seed-greenspace
 
 seed-rsrc-resources:
 	$(call project-create,RSRC,Resources)
@@ -117,6 +117,10 @@ seed-exposome-resources:
 	$(call resource-create,EXPOSOME,exposures)
 	$(call resource-create,EXPOSOME,phenotypes)
 
+seed-greenspace:
+	$(call project-create,GREENSPACE,Resources)
+	$(call project-restore,GREENSPACE)
+
 seed-auth: seed-user seed-perm
 
 seed-user:
@@ -150,6 +154,9 @@ seed-taxonomies-latest:
 #
 project-create = opal project -o $(opal_url) -u $(username) -p $(password) --name $(1) --database $(database) --tags $(2) --add && \
 	opal project -o $(opal_url) -u $(username) -p $(password) --name $(1)
+
+project-restore = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/backup/$(1).zip /home/$(username) && \
+  opal restore-project -o $(opal_url) -u $(username) -p $(password) -pr $(1) -ar /home/$(username)/$(1).zip
 
 tables-import = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/dictionaries/$(1).zip /home/$(username) && \
 	opal import-xml -o $(opal_url) -u $(username) -p $(password) -pa /home/$(username)/$(1).zip -d $(1) && \
