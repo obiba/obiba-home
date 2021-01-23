@@ -79,7 +79,10 @@ seed-datashield:
 	$(call project-create,TESTING,DataSHIELD)
 	$(call tables-import,TESTING)
 
-seed-resources: seed-rsrc-resources seed-exposome-resources seed-greenspace
+seed-resources: seed-rsrc-resources seed-exposome-resources seed-greenspace seed-workshop
+
+seed-workshop:
+	$(call project-create,workshop,Workshop)
 
 seed-rsrc-resources:
 	$(call project-create,RSRC,Resources)
