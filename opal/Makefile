@@ -137,8 +137,11 @@ seed-perm:
 	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr DISCORDANT -pe view -a
 	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr SURVIVAL -pe view -a
 	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr TESTING -pe view -a
+	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr GREENSPACE -pe view -a
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/RSRC/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/EXPOSOME/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
+	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/GREENSPACE/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
+	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/workshop/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
 
 seed-taxonomies:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
