@@ -20,7 +20,7 @@ opal-help:
 	@echo "Available make targets:"
 	@echo "  seed-opal : Seed opal server"
 
-seed-opal: seed-projects seed-tables seed-taxonomies seed-datashield seed-resources seed-auth
+seed-opal: seed-projects seed-tables seed-taxonomies seed-auth seed-datashield seed-resources
 
 seed-projects:
 	$(call project-create,CHPT,Mica)
@@ -78,13 +78,15 @@ seed-datashield:
 	$(call tables-import,SURVIVAL)
 	$(call project-create,TESTING,DataSHIELD)
 	$(call tables-import,TESTING)
+	$(call table-ds-perm,CNSIM)
+	$(call table-ds-perm,DASIM)
+	$(call table-ds-perm,DISCORDANT)
+	$(call table-ds-perm,SURVIVAL)
+	$(call table-ds-perm,TESTING)
 
-seed-resources: seed-rsrc-resources seed-exposome-resources seed-greenspace seed-workshop
+seed-resources: seed-rsrc seed-exposome seed-greenspace seed-workshop
 
-seed-workshop:
-	$(call project-create,workshop,Workshop)
-
-seed-rsrc-resources:
+seed-rsrc:
 	$(call project-create,RSRC,Resources)
 	$(call resource-create,RSRC,GSE66351_1)
 	$(call resource-create,RSRC,GSE66351_2)
@@ -112,18 +114,27 @@ seed-rsrc-resources:
 	$(call file-upload,opal/seed/data/gps_data_final.RData,/projects/RSRC)
 	$(call file-upload,opal/seed/data/gps_participant.RData,/projects/RSRC)
 	$(call file-upload,opal/seed/data/takeaway_data.RData,/projects/RSRC)
+	$(call resources-ds-perm,RSRC)
 
-seed-exposome-resources:
+seed-exposome:
 	$(call project-create,EXPOSOME,Resources)
 	$(call resource-create,EXPOSOME,description)
 	$(call resource-create,EXPOSOME,exposomeSet)
 	$(call resource-create,EXPOSOME,exposures)
 	$(call resource-create,EXPOSOME,phenotypes)
+	$(call resources-ds-perm,EXPOSOME)
 
 seed-greenspace:
 	$(call project-create,GREENSPACE,Resources)
 	$(call project-restore,GREENSPACE)
+	$(call resources-ds-perm,GREENSPACE)
+	$(call table-ds-perm,GREENSPACE)
 
+seed-workshop:
+	$(call project-create,workshop,Workshop)
+	$(call project-restore,workshop)
+	$(call resources-ds-perm,workshop)
+		
 seed-auth: seed-user seed-perm
 
 seed-user:
@@ -132,16 +143,6 @@ seed-user:
 
 seed-perm:
 	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr CNSIM -pe view -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr DASIM -pe view -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr DISCORDANT -pe view -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr SURVIVAL -pe view -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr TESTING -pe view -a
-	opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr GREENSPACE -pe view -a
-	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/RSRC/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
-	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/EXPOSOME/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
-	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/GREENSPACE/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
-	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/workshop/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=dsuser"
 
 seed-taxonomies:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
@@ -167,6 +168,10 @@ project-restore = opal file -o $(opal_url) -u $(username) -p $(password) -up ./o
 tables-import = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/dictionaries/$(1).zip /home/$(username) && \
 	opal import-xml -o $(opal_url) -u $(username) -p $(password) -pa /home/$(username)/$(1).zip -d $(1) && \
 	while [ `opal rest -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
+
+table-ds-perm = opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr $(1) -pe view -a
+
+resources-ds-perm = opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/$(1)/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=$(dsusername)"
 
 taxonomy-import = opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?repo=maelstrom-taxonomies&key=$(taxonomies_key)&override=true&file=$(1).yml"
 
