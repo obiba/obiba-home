@@ -1,8 +1,8 @@
 {
-  "credentials": "{\"username\":\"master\", \"password\":\"master\"}",
+  "credentials": "{\"username\":\"master\", \"password\":\"nSATfSy9Y8JAo5zK\"}",
   "factory": "ssh",
   "name": "brge_plink",
   "parameters": "{\"host\":\"plink-demo.obiba.org\", \"port\":\"2222\", \"workDir\":\"/home/master/brge\", \"exec\":[{\"name\":\"ls\"},{\"name\":\"plink1\"},{\"name\":\"plink\"}]}",
   "project": "@project@",
-  "provider": "resourcer" 
+  "provider": "resourcer"
 }
