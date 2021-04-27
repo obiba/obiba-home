@@ -1,0 +1,41 @@
+{
+  "content": "{\"clientId\":\"obiba-agate\",\"useNonce\":true,\"scope\":\"openid\",\"readTimeout\":0,\"connectTimeout\":0,\"secret\":\"d3f5a10e-c6c9-40c0-a596-82205f2a5810\",\"discoveryURI\":\"http://localhost:8899/auth/realms/obiba/.well-known/openid-configuration\",\"providerUrl\":\"http://localhost:8899/auth/realms/obiba/account\"}",
+  "description": [
+    {
+      "lang": "en",
+      "value": "Local Kc"
+    }
+  ],
+  "forSignup": true,
+  "groups": [
+    "mica-user"
+  ],
+  "name": "keycloak",
+  "status": "ACTIVE",
+  "title": [
+    {
+      "lang": "en",
+      "value": "Keycloak"
+    }
+  ],
+  "type": "agate-oidc-realm",
+  "userCount": 2,
+  "userInfoMappings": [
+    {
+      "key": "username",
+      "value": "preferred_username"
+    },
+    {
+      "key": "email",
+      "value": "email"
+    },
+    {
+      "key": "firstname",
+      "value": "given_name"
+    },
+    {
+      "key": "lastname",
+      "value": "family_name"
+    }
+  ]
+}

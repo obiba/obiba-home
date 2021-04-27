@@ -18,3 +18,5 @@ seed-users:
 	agate add-user -ag $(agate_url) -u $(username) -p $(password) --name user1 --upassword password --first-name James --last-name Watson --email user1@test.com  --groups mica-user
 	agate add-user -ag $(agate_url) -u $(username) -p $(password) --name dao --upassword password --first-name Mary --last-name Heins --email dao@test.com  --groups mica-data-access-officer
 
+seed-realms:
+	agate rest -ag $(agate_url) -u $(username) -p $(password) -m POST -ct "application/json" /config/realms < ./agate/seed/realms/keycloak-realm.json
