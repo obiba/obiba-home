@@ -1,0 +1,20 @@
+---
+title: "Report files"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## List files
+
+```{r files}
+list.files(recursive = TRUE)
+```
+
+## Images
+
+![theorie du compost](theorieducompost.jpg)
+
+![il pleut](images/ilpleut.jpg)
