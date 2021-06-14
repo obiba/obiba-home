@@ -84,7 +84,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-resources: seed-rsrc seed-exposome seed-greenspace seed-workshop
+seed-resources: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-workshop
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
@@ -129,6 +129,12 @@ seed-greenspace:
 	$(call project-restore,GREENSPACE)
 	$(call resources-ds-perm,GREENSPACE)
 	$(call table-ds-perm,GREENSPACE)
+
+seed-recount2:
+	$(call project-create,recount2,Resources)
+	$(call project-restore,recount2)
+	$(call resources-ds-perm,recount2)
+	$(call table-ds-perm,recount2)
 
 seed-workshop:
 	$(call project-create,workshop,Workshop)
