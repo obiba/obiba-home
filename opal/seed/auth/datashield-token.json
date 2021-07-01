@@ -1,0 +1,12 @@
+{
+  "name": "datashield",
+  "token": "j1WlCy8zwbdjk5aKQ1kKXlR32cBs3Xne",
+  "access": "READ_NO_VALUES",
+  "createProject": false,
+  "updateProject": false,
+  "deleteProject": false,
+  "useR": false,
+  "useDatashield": true,
+  "useSQL": false,
+  "sysAdmin": false
+}

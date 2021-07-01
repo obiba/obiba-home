@@ -1,0 +1,14 @@
+{
+  "name": "resources",
+  "token": "EeTtQGIob6haio5bx6FUfVvIGkeZJfGq",
+  "projects": [
+    "RSRC"
+  ],
+  "createProject": false,
+  "updateProject": false,
+  "deleteProject": false,
+  "useR": false,
+  "useDatashield": false,
+  "useSQL": false,
+  "sysAdmin": false
+}
