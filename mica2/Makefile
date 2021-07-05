@@ -71,8 +71,8 @@ seed-collected-datasets:
 	$(call dataset-create,collected,lasa-1)
 	$(call dataset-create,collected,lasa-2)
 	$(call dataset-create,collected,lasa-3)
-	$(call dataset-create,collected,ship)
-	$(call dataset-create,collected,ship-trend)
+	$(call dataset-create,collected,ship-start)
+	$(call dataset-create,collected,ship-start-trend)
 	$(call dataset-create,collected,cag-baseline)
 
 seed-harmonized-datasets:
