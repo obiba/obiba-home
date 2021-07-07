@@ -22,10 +22,10 @@
     "published": false,
     "obiba.mica.CollectedDatasetDto.type": {
         "studyTable": {
-            "studyId": "ship-start",
+            "studyId": "ship",
             "populationId": "1",
             "dataCollectionEventId": "1",
-            "project": "SHIP-START",
+            "project": "SHIP",
             "table": "ship_2013_154_d_s0_20131212"
         }
     }

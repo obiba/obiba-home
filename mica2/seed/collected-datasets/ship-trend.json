@@ -1,15 +1,15 @@
 {
-    "id": "ship-start-trend",
+    "id": "ship-trend",
     "name": [
         {
             "lang": "en",
-            "value": "SHIP-START-TREND"
+            "value": "SHIP-TREND"
         }
     ],
     "acronym": [
         {
             "lang": "en",
-            "value": "SHIP-START-TREND"
+            "value": "SHIP-TREND"
         }
     ],
     "description": [
@@ -22,10 +22,10 @@
     "published": false,
     "obiba.mica.CollectedDatasetDto.type": {
         "studyTable": {
-            "studyId": "ship-start",
+            "studyId": "ship",
             "populationId": "2",
             "dataCollectionEventId": "1",
-            "project": "SHIP-START",
+            "project": "SHIP",
             "table": "ship_2013_154_d_s0_20131212"
         }
     }
