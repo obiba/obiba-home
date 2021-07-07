@@ -141,11 +141,13 @@ seed-workshop:
 	$(call project-restore,workshop)
 	$(call resources-ds-perm,workshop)
 
-seed-auth: seed-user seed-perm
+seed-auth: seed-user seed-tokens seed-perm
 
-seed-user:
+seed-tokens:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/resources-token.json
 	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/datashield-token.json
+
+seed-user:
 	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa password -a
 
 seed-perm:

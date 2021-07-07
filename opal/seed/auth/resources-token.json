@@ -4,6 +4,7 @@
   "projects": [
     "RSRC"
   ],
+  "access": "READ",
   "createProject": false,
   "updateProject": false,
   "deleteProject": false,
