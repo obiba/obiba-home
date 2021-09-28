@@ -146,6 +146,11 @@ seed-workshop:
 	$(call project-restore,workshop)
 	$(call resources-ds-perm,workshop)
 
+seed-titanic:
+	$(call project-create,TITANIC_NEWCOMERS_WORKSHOP,Workshop)
+	$(call project-restore,TITANIC_NEWCOMERS_WORKSHOP)
+	$(call table-ds-perm,TITANIC_NEWCOMERS_WORKSHOP)
+
 seed-auth: seed-user seed-tokens seed-perm
 
 seed-tokens:
