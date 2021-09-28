@@ -20,7 +20,7 @@ opal-help:
 	@echo "Available make targets:"
 	@echo "  seed-opal : Seed opal server"
 
-seed-opal: seed-projects seed-tables seed-taxonomies seed-auth seed-datashield seed-resources
+seed-opal: seed-projects seed-tables seed-taxonomies seed-auth seed-datashield seed-others
 
 seed-projects:
 	$(call project-create,CHPT,Mica)
@@ -84,7 +84,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-resources: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-workshop
+seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-workshop seed-titanic
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
