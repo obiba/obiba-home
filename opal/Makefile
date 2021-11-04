@@ -7,6 +7,7 @@ password=password
 taxonomies_ref=1.0
 taxonomies_key=4929750633404868
 dsusername=dsuser
+dspassword=P@ssw0rd
 
 # Database name in opal
 database=opal_data
@@ -158,7 +159,7 @@ seed-tokens:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/datashield-token.json
 
 seed-user:
-	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa password -a
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa $(dspassword) -a
 
 seed-perm:
 	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
