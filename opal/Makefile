@@ -85,7 +85,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-workshop seed-titanic
+seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-workshop seed-titanic
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
@@ -142,6 +142,11 @@ seed-gwas:
 	$(call project-restore,GWAS)
 	$(call resources-ds-perm,GWAS)
 
+seed-omics:
+	$(call project-create,OMICS,Resources)
+	$(call project-restore,OMICS)
+	$(call resources-ds-perm,OMICS)
+
 seed-workshop:
 	$(call project-create,workshop,Workshop)
 	$(call project-restore,workshop)
@@ -175,6 +180,9 @@ seed-taxonomies-latest:
 	$(call taxonomy-import,scales/GeneralHealth)
 	$(call taxonomy-import,scales/Habits)
 	$(call taxonomy-import,scales/Social)
+
+backup-project:
+	opal backup-project --opal $(opal_url) --user $(username) --password $(password) --project $(project) --archive /tmp/backup/$(project) | opal task --opal $(opal_url) --user $(username) --password $(password) --wait && opal file --opal $(opal_url) --user $(username) --password $(password) --download /tmp/backup/$(project) > $(project).zip
 
 #
 # Functions
