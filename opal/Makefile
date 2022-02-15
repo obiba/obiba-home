@@ -191,7 +191,8 @@ project-create = opal project -o $(opal_url) -u $(username) -p $(password) --nam
 	opal project -o $(opal_url) -u $(username) -p $(password) --name $(1)
 
 project-restore = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/backup/$(1).zip /home/$(username) && \
-  opal restore-project -o $(opal_url) -u $(username) -p $(password) -pr $(1) -ar /home/$(username)/$(1).zip
+  opal restore-project -o $(opal_url) -u $(username) -p $(password) -pr $(1) -ar /home/$(username)/$(1).zip && \
+	while [ `opal rest -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
 
 tables-import = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/dictionaries/$(1).zip /home/$(username) && \
 	opal import-xml -o $(opal_url) -u $(username) -p $(password) -pa /home/$(username)/$(1).zip -d $(1) && \
