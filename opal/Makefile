@@ -85,7 +85,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-workshop seed-titanic
+seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-workshop seed-titanic seed-mediation
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
@@ -156,6 +156,11 @@ seed-titanic:
 	$(call project-create,TITANIC_NEWCOMERS_WORKSHOP,Workshop)
 	$(call project-restore,TITANIC_NEWCOMERS_WORKSHOP)
 	$(call table-ds-perm,TITANIC_NEWCOMERS_WORKSHOP)
+
+seed-mediation:
+	$(call project-create,MEDIATION,Workshop)
+	$(call project-restore,MEDIATION)
+	$(call table-ds-perm,MEDIATION)
 
 seed-auth: seed-user seed-tokens seed-perm
 
