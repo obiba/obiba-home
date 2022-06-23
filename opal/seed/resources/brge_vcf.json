@@ -2,7 +2,7 @@
   "credentials": "{\"username\":\"\", \"password\":\"\"}",
   "factory": "http-gds-file",
   "name": "brge_vcf",
-  "parameters": "{\"url\":\"https://raw.githubusercontent.com/isglobal-brge/brgedata/master/inst/extdata/brge.vcf.gz?method=biallelic.only&snpfirstdim=TRUE\", \"format\":\"VCF2GDS\"}",
+  "parameters": "{\"url\":\"https://raw.githubusercontent.com/isglobal-brge/brge_data_large/master/inst/extdata/brge.vcf.gz?method=biallelic.only&snpfirstdim=TRUE\", \"format\":\"VCF2GDS\"}",
   "project": "@project@",
   "provider": "dsOmics"
-  }
+}
