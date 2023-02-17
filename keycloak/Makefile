@@ -1,6 +1,6 @@
 file=keycloak-mysql.yml
 
-init:
+up:
 	sudo docker-compose  -f ${file} up -d
 
 start:
