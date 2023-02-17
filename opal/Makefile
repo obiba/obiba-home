@@ -119,10 +119,7 @@ seed-rsrc:
 
 seed-exposome:
 	$(call project-create,EXPOSOME,Resources)
-	$(call resource-create,EXPOSOME,description)
-	$(call resource-create,EXPOSOME,exposomeSet)
-	$(call resource-create,EXPOSOME,exposures)
-	$(call resource-create,EXPOSOME,phenotypes)
+	$(call project-restore,EXPOSOME)
 	$(call resources-ds-perm,EXPOSOME)
 
 seed-greenspace:

@@ -1,8 +1,0 @@
-{
-  "name": "description",
-  "project": "EXPOSOME",
-  "provider": "resourcer",
-  "factory": "http-tidy-file",
-  "parameters": "{\"url\":\"https://github.com/isglobal-brge/rexposome/raw/master/inst/extdata/description.csv\", \"format\":\"csv\"}",
-  "credentials": "{\"username\":\"\", \"password\":\"\"}"
-}

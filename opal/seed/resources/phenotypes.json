@@ -1,8 +1,0 @@
-{
-  "name": "phenotypes",
-  "project": "EXPOSOME",
-  "provider": "resourcer",
-  "factory": "http-tidy-file",
-  "parameters": "{\"url\":\"https://github.com/isglobal-brge/rexposome/raw/master/inst/extdata/phenotypes.csv\", \"format\":\"csv\"}",
-  "credentials": "{\"username\":\"\", \"password\":\"\"}"
-}
