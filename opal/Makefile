@@ -85,7 +85,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-workshop seed-titanic seed-mediation
+seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
@@ -143,6 +143,14 @@ seed-omics:
 	$(call project-create,OMICS,Resources)
 	$(call project-restore,OMICS)
 	$(call resources-ds-perm,OMICS)
+
+seed-cadset:
+	$(call project-create,CADSET-coh1,Resources)
+	$(call project-restore,CADSET-coh1)
+	$(call resources-ds-perm,CADSET-coh1)
+	$(call project-create,CADSET-coh2,Resources)
+	$(call project-restore,CADSET-coh2)
+	$(call resources-ds-perm,CADSET-coh2)
 
 seed-workshop:
 	$(call project-create,workshop,Workshop)
