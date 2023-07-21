@@ -1,7 +1,7 @@
 #
 # Opal server
 #
-opal_url=https://localhost:8443
+opal_url=http://localhost:8080
 username=administrator
 password=password
 taxonomies_ref=1.0
@@ -170,17 +170,17 @@ seed-mediation:
 seed-auth: seed-user seed-tokens seed-perm
 
 seed-tokens:
-	opal rest -nv -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/resources-token.json
-	opal rest -nv -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/datashield-token.json
+	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/resources-token.json
+	opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST /system/subject-token/_current/tokens < ./opal/seed/auth/datashield-token.json
 
 seed-user:
-	opal user -nv -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa $(dspassword) -a
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa $(dspassword) -a
 
 seed-perm:
-	opal perm-datashield -nv -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
+	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
 
 seed-taxonomies:
-	opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
+	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
 
 seed-taxonomies-latest:
 	$(call taxonomy-import,AreaOfInformation)
@@ -197,25 +197,25 @@ backup-project:
 #
 # Functions
 #
-project-create = opal project -nv -o $(opal_url) -u $(username) -p $(password) --name $(1) --database $(database) --tags $(2) --add && \
-	opal project -nv -o $(opal_url) -u $(username) -p $(password) --name $(1)
+project-create = opal project -o $(opal_url) -u $(username) -p $(password) --name $(1) --database $(database) --tags $(2) --add && \
+	opal project -o $(opal_url) -u $(username) -p $(password) --name $(1)
 
-project-restore = opal file -nv -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/backup/$(1).zip /home/$(username) && \
-  opal restore-project -nv -o $(opal_url) -u $(username) -p $(password) -pr $(1) -ar /home/$(username)/$(1).zip && \
-	while [ `opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
+project-restore = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/backup/$(1).zip /home/$(username) && \
+  opal restore-project -o $(opal_url) -u $(username) -p $(password) -pr $(1) -ar /home/$(username)/$(1).zip && \
+	while [ `opal rest -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
 
-tables-import = opal file -nv -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/dictionaries/$(1).zip /home/$(username) && \
-	opal import-xml -nv -o $(opal_url) -u $(username) -p $(password) -pa /home/$(username)/$(1).zip -d $(1) && \
-	while [ `opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
+tables-import = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opal/seed/dictionaries/$(1).zip /home/$(username) && \
+	opal import-xml -o $(opal_url) -u $(username) -p $(password) -pa /home/$(username)/$(1).zip -d $(1) && \
+	while [ `opal rest -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
 
-table-ds-perm = opal perm-table -nv -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr $(1) -pe view -a
+table-ds-perm = opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr $(1) -pe view -a
 
-resources-ds-perm = opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m POST "/project/$(1)/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=$(dsusername)"
+resources-ds-perm = opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/$(1)/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=$(dsusername)"
 
-taxonomy-import = opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?repo=maelstrom-taxonomies&key=$(taxonomies_key)&override=true&file=$(1).yml"
+taxonomy-import = opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?repo=maelstrom-taxonomies&key=$(taxonomies_key)&override=true&file=$(1).yml"
 
-table-index = opal rest -nv -o $(opal_url) -u $(username) -p $(password) -m PUT "/datasource/$(1)/table/$(2)/index"
+table-index = opal rest -o $(opal_url) -u $(username) -p $(password) -m PUT "/datasource/$(1)/table/$(2)/index"
 
-resource-create = sed 's/@project@/$(1)/g' ./opal/seed/resources/$(2).json | opal rest -nv -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST "/project/$(1)/resources"
+resource-create = sed 's/@project@/$(1)/g' ./opal/seed/resources/$(2).json | opal rest -o $(opal_url) -u $(username) -p $(password) -ct "application/json" -m POST "/project/$(1)/resources"
 
-file-upload = opal file -nv -o $(opal_url) -u $(username) -p $(password) --upload $(1) $(2)
+file-upload = opal file -o $(opal_url) -u $(username) -p $(password) --upload $(1) $(2)

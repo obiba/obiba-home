@@ -1,7 +1,7 @@
 #
 # Mica2 server
 #
-mica_url=https://localhost:8445
+mica_url=http://localhost:8082
 username=administrator
 password=password
 
@@ -22,23 +22,23 @@ seed-mica: seed-studies seed-datasets seed-research-projects index-taxonomies
 seed-studies: seed-individual-studies seed-harmonization-studies seed-people
 
 seed-individual-studies:
-	mica import-zip -nv -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies
+	mica import-zip -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies
 
 seed-harmonization-studies:
-	mica import-zip -nv -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/harmonization-studies
+	mica import-zip -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/harmonization-studies
 
 seed-single-study: seed-cls-study
 	mica rest -u administrator -p password -m DELETE /draft/network/ialsa
 
 seed-cls-study:
-	mica import-zip -nv -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies/study-cls.zip
+	mica import-zip -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies/study-cls.zip
 	$(call dataset-create,collected,cls-wave1)
 	$(call dataset-create,collected,cls-wave2)
 	$(call dataset-create,collected,cls-wave3)
 	$(call dataset-create,collected,cls-wave4)
 
 seed-cag-study:
-	mica import-zip -nv -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies/study-cag.zip
+	mica import-zip -mk $(mica_url) -u $(username) -p $(password) -pub ./mica2/seed/individual-studies/study-cag.zip
 	$(call dataset-create,collected,cag-baseline)
 
 seed-datasets: seed-collected-datasets seed-harmonized-datasets
@@ -87,7 +87,7 @@ seed-research-projects:
 	$(call research-project-create,lung-cancer)
 
 index-taxonomies:
-	mica rest -nv -mk $(mica_url) -u $(username) -p $(password) /taxonomies/_index -m PUT
+	mica rest -mk $(mica_url) -u $(username) -p $(password) /taxonomies/_index -m PUT
 
 clean-mica:
 	rm -rf ${mica_home}
@@ -100,8 +100,8 @@ launch-mica-debug:
 #
 # Functions
 #
-dataset-create = mica rest -nv -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/$(1)-datasets --content-type "application/json" < ./mica2/seed/$(1)-datasets/$(2).json && \
-	mica rest -nv -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/$(1)-dataset/$(2)/_publish
+dataset-create = mica rest -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/$(1)-datasets --content-type "application/json" < ./mica2/seed/$(1)-datasets/$(2).json && \
+	mica rest -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/$(1)-dataset/$(2)/_publish
 
-research-project-create = mica rest -nv -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/projects --content-type "application/json" < ./mica2/seed/projects/$(1).json && \
-	mica rest -nv -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/project/$(1)/_publish
+research-project-create = mica rest -mk $(mica_url) -u $(username) -p $(password) -m POST /draft/projects --content-type "application/json" < ./mica2/seed/projects/$(1).json && \
+	mica rest -mk $(mica_url) -u $(username) -p $(password) -m PUT /draft/project/$(1)/_publish
