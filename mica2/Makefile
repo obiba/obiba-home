@@ -1,7 +1,7 @@
 #
 # Mica2 server
 #
-mica_url=https://localhost:8445
+mica_url=http://localhost:8082
 username=administrator
 password=password
 

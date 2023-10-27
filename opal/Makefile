@@ -1,7 +1,7 @@
 #
 # Opal server
 #
-opal_url=https://localhost:8443
+opal_url=http://localhost:8080
 username=administrator
 password=password
 taxonomies_ref=1.0
