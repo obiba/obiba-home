@@ -20,12 +20,11 @@
     ],
     "entityType": "Participant",
     "published": false,
-    "obiba.mica.HarmonizedDatasetDto.type": {
+    "protocol": {
         "harmonizationTable": {
-          	"project": "CPTP",
-          	"table": "Coreqx_final",
-          	"populationId": "1",
-        	"studyId": "cptp-hs"          
+            "project": "CPTP",
+            "table": "Coreqx_final",
+            "studyId": "cptp-hs"
         },
         "studyTables": [
             {
@@ -53,12 +52,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "Atlantic2_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "2"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "2"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -72,18 +71,18 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "Bcgp-onl_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "1"
-        			}
-    			],
-    			"description": [
-        			{
-            			"lang": "en",
-            			"value": "Online questionnaire"
-        			}
-    			]
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "1"
+                    }
+                ],
+                "description": [
+                    {
+                        "lang": "en",
+                        "value": "Online questionnaire"
+                    }
+                ]
             },
             {
                 "studyId": "bcgp",
@@ -91,12 +90,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "Bcgp-tel_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "2"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "2"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -110,12 +109,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "Bcgp-opal_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "3"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "3"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -142,12 +141,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "OHS1_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "1"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "1"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -161,12 +160,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "OHS2_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "2"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "2"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -180,12 +179,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "TTP_UHLQ_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "1"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "1"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",
@@ -199,12 +198,12 @@
                 "dataCollectionEventId": "2",
                 "project": "CPTP",
                 "table": "TTP_CoreQA_coreqx",
-    			"name": [
-        			{
-            			"lang": "en",
-            			"value": "2"
-        			}
-    			],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "2"
+                    }
+                ],
                 "description": [
                     {
                         "lang": "en",

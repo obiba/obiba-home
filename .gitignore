@@ -3,3 +3,5 @@ target/
 visual_regression/backstop_data/
 visual_regression/node_modules/
 visual_regression/package-lock.json
+.history
+venv

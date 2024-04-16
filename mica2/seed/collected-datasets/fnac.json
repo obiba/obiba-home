@@ -20,7 +20,7 @@
     ],
     "entityType": "Participant",
     "published": false,
-    "obiba.mica.CollectedDatasetDto.type": {
+    "collected": {
         "studyTable": {
             "studyId": "finrisk-2007",
             "populationId": "1",
