@@ -3,7 +3,7 @@
 #
 mica_url=https://localhost:8445
 username=administrator
-password=Password
+password=password
 
 mica_home = $(CURDIR)/target/mica_home
 mica_log = ${mica_home}/logs
