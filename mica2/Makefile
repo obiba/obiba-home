@@ -17,8 +17,7 @@ mica-help:
 	@echo "Available make targets:"
 	@echo "  seed-mica : Seed mica server"
 
-# seed-mica: seed-studies seed-datasets seed-research-projects index-taxonomies
-seed-mica: seed-studies seed-datasets seed-research-projects
+seed-mica: seed-studies seed-datasets seed-research-projects index-taxonomies
 
 seed-studies: seed-individual-studies seed-harmonization-studies seed-people
 
