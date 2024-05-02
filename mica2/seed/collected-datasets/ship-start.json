@@ -20,7 +20,7 @@
     ],
     "entityType": "Participant",
     "published": false,
-    "obiba.mica.CollectedDatasetDto.type": {
+    "collected": {
         "studyTable": {
             "studyId": "ship",
             "populationId": "1",

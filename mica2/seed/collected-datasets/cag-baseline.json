@@ -1,27 +1,27 @@
 {
-  "name": [
-    {
-      "lang": "en",
-      "value": "CaG-Baseline"
+    "name": [
+        {
+            "lang": "en",
+            "value": "CaG-Baseline"
+        }
+    ],
+    "acronym": [
+        {
+            "lang": "en",
+            "value": "CaG-Baseline"
+        }
+    ],
+    "entityType": "Participant",
+    "variableType": "Study",
+    "content": "{}",
+    "collected": {
+        "studyTable": {
+            "project": "CaG",
+            "table": "CaG_Baseline",
+            "studyId": "cag",
+            "populationId": "1",
+            "dataCollectionEventId": "1",
+            "dceId": "cag:1:1"
+        }
     }
-  ],
-  "acronym": [
-    {
-      "lang": "en",
-      "value": "CaG-Baseline"
-    }
-  ],
-  "entityType": "Participant",
-  "variableType": "Study",
-  "content": "{}",
-  "obiba.mica.CollectedDatasetDto.type": {
-    "studyTable": {
-      "project": "CaG",
-      "table": "CaG_Baseline",
-      "studyId": "cag",
-      "populationId": "1",
-      "dataCollectionEventId": "1",
-      "dceId": "cag:1:1"
-    }
-  }
 }
