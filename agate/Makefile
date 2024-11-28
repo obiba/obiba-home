@@ -1,7 +1,7 @@
 #
 # Agate server
 #
-agate_url=https://localhost:8444
+agate_url=http://localhost:8081
 username=administrator
 password=password
 upassword=P@ssw0rd
