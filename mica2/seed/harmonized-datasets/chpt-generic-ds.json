@@ -1,87 +1,85 @@
 {
-  "id": "chpt-generic-ds",
-  "acronym": [
-    {
-      "lang": "en",
-      "value": "CHPT_GENERIC_DS"
-    }
-  ],
-  "content": "{}",
-  "description": [
-    {
-      "lang": "en",
-      "value": "The CHPT Generic DataSchema was developed to answer a wide range of research questions on the determinants and etiology of cancer and other major chronic diseases. It consists of a minimal set of the most prevalent chronic diseases and their associated individual-level risk factors. The DataSchema was defined part of a harmonization exercise aiming to evaluate the harmonization potential across cohort studies participating in the CHPT network. The evaluation of the harmonization potential was performed using the study questionnaires and data dictionaries from baseline assessments collected on individuals aged 18 years or more. The current harmonization potential evaluation included 12 cohort studies, encompassing 15 datasets, totalling almost 2 million participants.\n\n The CHPT Generic DataSchema covers: \n- Participant’s individual history of diseases: cancer, endocrine and metabolic diseases (diabetes), circulatory system diseases (high blood pressure, myocardial infarction, stroke), respiratory system diseases (asthma, chronic obstructive pulmonary disease, chronic bronchitis, emphysema) \n- Participant’s socio-demographic factors: age, sex, education, working status, marital status, income, family/household structure\n- Participant’s physical measures: anthropometric measures, heart rate, systolic and diastolic blood pressure \n- Participant’s reproductive health factors: occurrence and onset of menstruation, menopause, hysterectomy, and oophorectomy, gravidity, live births, contraceptive use and hormone replacement therapy use\n- Participant’s behavioral and lifestyle factors: cigarette smoking, passive smoking exposure, alcohol consumption, physical activity, nutrition."
-    }
-  ],
-  "entityType": "Participant",
-  "name": [
-    {
-      "lang": "en",
-      "value": "CHPT Generic DataSchema"
-    }
-  ],
-  "obiba.mica.HarmonizedDatasetDto.type": {
-    "harmonizationTable": {
-      "populationId": "1",
-      "project": "CHPT",
-      "studyId": "chpt-project",
-      "table": "CHPT_GENERIC_DS"
-    },
-    "harmonizationTables": [
-      {
-        "populationId": "1",
-        "project": "CHPT",
-        "studyId": "cptp-hs",
-        "table": "CPTP_table",
-        "weight": 0
-      }
+    "id": "chpt-generic-ds",
+    "acronym": [
+        {
+            "lang": "en",
+            "value": "CHPT_GENERIC_DS"
+        }
     ],
-    "studyTables": [
-      {
-        "studyId": "clsa",
-        "populationId": "2",
-        "dataCollectionEventId": "1",
-        "project": "CHPT",
-        "table": "CLSA_COM_table",
-        "description": [
-          {
+    "content": "{}",
+    "description": [
+        {
             "lang": "en",
-            "value": "Comprehensive"
-          }
+            "value": "The CHPT Generic DataSchema was developed to answer a wide range of research questions on the determinants and etiology of cancer and other major chronic diseases. It consists of a minimal set of the most prevalent chronic diseases and their associated individual-level risk factors. The DataSchema was defined part of a harmonization exercise aiming to evaluate the harmonization potential across cohort studies participating in the CHPT network. The evaluation of the harmonization potential was performed using the study questionnaires and data dictionaries from baseline assessments collected on individuals aged 18 years or more. The current harmonization potential evaluation included 12 cohort studies, encompassing 15 datasets, totalling almost 2 million participants.\n\n The CHPT Generic DataSchema covers: \n- Participant\u2019s individual history of diseases: cancer, endocrine and metabolic diseases (diabetes), circulatory system diseases (high blood pressure, myocardial infarction, stroke), respiratory system diseases (asthma, chronic obstructive pulmonary disease, chronic bronchitis, emphysema) \n- Participant\u2019s socio-demographic factors: age, sex, education, working status, marital status, income, family/household structure\n- Participant\u2019s physical measures: anthropometric measures, heart rate, systolic and diastolic blood pressure \n- Participant\u2019s reproductive health factors: occurrence and onset of menstruation, menopause, hysterectomy, and oophorectomy, gravidity, live births, contraceptive use and hormone replacement therapy use\n- Participant\u2019s behavioral and lifestyle factors: cigarette smoking, passive smoking exposure, alcohol consumption, physical activity, nutrition."
+        }
+    ],
+    "entityType": "Participant",
+    "name": [
+        {
+            "lang": "en",
+            "value": "CHPT Generic DataSchema"
+        }
+    ],
+    "protocol": {
+        "harmonizationTable": {
+            "project": "CHPT",
+            "studyId": "chpt-project",
+            "table": "CHPT_GENERIC_DS"
+        },
+        "harmonizationTables": [
+            {
+                "project": "CHPT",
+                "studyId": "cptp-hs",
+                "table": "CPTP_table",
+                "weight": 0
+            }
         ],
-        "name": [
-          {
-            "lang": "en",
-            "value": "1"
-          }
+        "studyTables": [
+            {
+                "studyId": "clsa",
+                "populationId": "2",
+                "dataCollectionEventId": "1",
+                "project": "CHPT",
+                "table": "CLSA_COM_table",
+                "description": [
+                    {
+                        "lang": "en",
+                        "value": "Comprehensive"
+                    }
+                ],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "1"
+                    }
+                ]
+            },
+            {
+                "studyId": "clsa",
+                "populationId": "1",
+                "dataCollectionEventId": "1",
+                "project": "CHPT",
+                "table": "CLSA_TRM_table",
+                "description": [
+                    {
+                        "lang": "en",
+                        "value": "Tracking"
+                    }
+                ],
+                "name": [
+                    {
+                        "lang": "en",
+                        "value": "2"
+                    }
+                ]
+            },
+            {
+                "studyId": "lifelines",
+                "populationId": "1",
+                "dataCollectionEventId": "2",
+                "project": "CHPT",
+                "table": "LifeLines_table"
+            }
         ]
-      },
-      {
-        "studyId": "clsa",
-        "populationId": "1",
-        "dataCollectionEventId": "1",
-        "project": "CHPT",
-        "table": "CLSA_TRM_table",
-        "description": [
-          {
-            "lang": "en",
-            "value": "Tracking"
-          }
-        ],
-        "name": [
-          {
-            "lang": "en",
-            "value": "2"
-          }
-        ]
-      },
-      {
-        "studyId": "lifelines",
-        "populationId": "1",
-        "dataCollectionEventId": "2",
-        "project": "CHPT",
-        "table": "LifeLines_table"
-      }
-    ]
-  }
+    }
 }
