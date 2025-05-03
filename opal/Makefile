@@ -85,7 +85,7 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation seed-propass seed-omop
+seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation seed-propass seed-omop seed-depression
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
@@ -176,6 +176,11 @@ seed-omop:
 	$(call project-create,omop_demo,Resources)
 	$(call project-restore,omop_demo)
 	$(call resources-ds-perm,omop_demo)
+
+seed-depression:
+	$(call project-create,depression,DataSHIELD)
+	$(call project-restore,depression)
+	$(call resources-ds-perm,depression)
 
 seed-auth: seed-user seed-tokens seed-perm
 
