@@ -180,7 +180,7 @@ seed-omop:
 seed-depression:
 	$(call project-create,depression,DataSHIELD)
 	$(call project-restore,depression)
-	$(call resources-ds-perm,depression)
+	$(call table-ds-perm,depression)
 
 seed-auth: seed-user seed-tokens seed-perm
 
