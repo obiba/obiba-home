@@ -1,0 +1,8 @@
+{
+  "name": "cordelia45",
+  "project": "@project@",
+  "provider": "resourcer",
+  "factory": "opal-tidy-file",
+  "parameters": "{\"url\":\"https://opal-demo.obiba.org\", \"path\":\"/projects/@project@/cordelia45.rds\", \"format\":\"data.frame\"}",
+  "credentials": "{\"token\":\"EeTtQGIob6haio5bx6FUfVvIGkeZJfGq\"}"
+}

@@ -2,7 +2,8 @@
   "name": "resources",
   "token": "EeTtQGIob6haio5bx6FUfVvIGkeZJfGq",
   "projects": [
-    "RSRC"
+    "RSRC",
+    "CORDELIA"
   ],
   "access": "READ",
   "createProject": false,
