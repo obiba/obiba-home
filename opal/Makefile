@@ -85,12 +85,13 @@ seed-datashield:
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
 
-seed-others: seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation seed-propass seed-omop seed-depression
+seed-others: seed-cordelia seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation seed-propass seed-omop seed-depression
 
 seed-cordelia:
 	$(call project-create,CORDELIA,Resources)
 	$(call file-upload,opal/seed/data/cordelia45.rds,/projects/CORDELIA)
 	$(call resource-create,CORDELIA,cordelia45)
+	$(call resources-ds-perm,CORDELIA)
 
 seed-rsrc:
 	$(call project-create,RSRC,Resources)
