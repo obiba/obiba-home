@@ -143,6 +143,7 @@ seed-recount2:
 seed-gwas:
 	$(call project-create,GWAS,Resources)
 	$(call project-restore,GWAS)
+	$(call table-ds-perm,GWAS)
 	$(call resources-ds-perm,GWAS)
 
 seed-omics:
