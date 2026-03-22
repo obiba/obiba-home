@@ -68,7 +68,9 @@ seed-index:
 	$(call table-index,CPTP,TTP_CoreQA_coreqx)
 	$(call table-index,CPTP,TTP_UHLQ_coreqx)
 
-seed-datashield:
+seed-datashield: seed-datashield-projects seed-datashield-permissions
+
+seed-datashield-projects:
 	$(call project-create,CNSIM,DataSHIELD)
 	$(call tables-import,CNSIM)
 	$(call project-create,DASIM,DataSHIELD)
@@ -79,11 +81,25 @@ seed-datashield:
 	$(call tables-import,SURVIVAL)
 	$(call project-create,TESTING,DataSHIELD)
 	$(call tables-import,TESTING)
+
+seed-datashield-permissions:
 	$(call table-ds-perm,CNSIM)
 	$(call table-ds-perm,DASIM)
 	$(call table-ds-perm,DISCORDANT)
 	$(call table-ds-perm,SURVIVAL)
 	$(call table-ds-perm,TESTING)
+	$(call table-dsx-perm,1,CNSIM,CNSIM1)
+	$(call table-dsx-perm,1,DASIM,DASIM1)
+	$(call table-dsx-perm,1,DISCORDANT,DISCORDANT_STUDY1)
+	$(call table-dsx-perm,1,SURVIVAL,EXPAND_WITH_MISSING1)
+	$(call table-dsx-perm,2,CNSIM,CNSIM2)
+	$(call table-dsx-perm,2,DASIM,DASIM2)
+	$(call table-dsx-perm,2,DISCORDANT,DISCORDANT_STUDY2)
+	$(call table-dsx-perm,2,SURVIVAL,EXPAND_WITH_MISSING2)
+	$(call table-dsx-perm,3,CNSIM,CNSIM3)
+	$(call table-dsx-perm,3,DASIM,DASIM3)
+	$(call table-dsx-perm,3,DISCORDANT,DISCORDANT_STUDY3)
+	$(call table-dsx-perm,3,SURVIVAL,EXPAND_WITH_MISSING3)
 
 seed-others: seed-cordelia seed-rsrc seed-exposome seed-greenspace seed-recount2 seed-gwas seed-omics seed-cadset seed-workshop seed-titanic seed-mediation seed-propass seed-omop seed-depression
 
@@ -197,9 +213,15 @@ seed-tokens:
 
 seed-user:
 	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername) -upa $(dspassword) -a
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername)1 -upa $(dspassword) -a
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername)2 -upa $(dspassword) -a
+	opal user -o $(opal_url) -u $(username) -p $(password) -n $(dsusername)3 -upa $(dspassword) -a
 
 seed-perm:
 	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pe use -a
+	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername)1 -ty user -pe use -a
+	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername)2 -ty user -pe use -a
+	opal perm-datashield -o $(opal_url) -u $(username) -p $(password) -s $(dsusername)3 -ty user -pe use -a
 
 seed-taxonomies:
 	opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/system/conf/taxonomies/import/_github?user=maelstrom-research&repo=maelstrom-taxonomies&override=true&ref=$(taxonomies_ref)&key=$(taxonomies_key)"
@@ -231,6 +253,8 @@ tables-import = opal file -o $(opal_url) -u $(username) -p $(password) -up ./opa
 	while [ `opal rest -o $(opal_url) -u $(username) -p $(password) -m GET /shell/commands -j | grep -ch "NOT_STARTED\|IN_PROGRESS"` -gt 0 ] ; do echo -n "."; sleep 5; done; echo "."
 
 table-ds-perm = opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername) -ty user -pr $(1) -pe view -a
+
+table-dsx-perm = opal perm-table -o $(opal_url) -u $(username) -p $(password) -s $(dsusername)$(1) -ty user -pr $(2) -t $(3) -pe view -a
 
 resources-ds-perm = opal rest -o $(opal_url) -u $(username) -p $(password) -m POST "/project/$(1)/permissions/resources?type=USER&permission=RESOURCES_VIEW&principal=$(dsusername)"
 
