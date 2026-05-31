@@ -65,6 +65,7 @@
 - Upgrade Quasar framework from 2.14.3 to latest 2.x LTS
 - Update @quasar/app-webpack and @quasar/cli
 - Update @quasar/extras
+- Upgrade @obiba/quasar-app-extension-amber to 1.2.0
 - Test all Quasar components (Notify, LocalStorage, LoadingBar, AppFullscreen)
 - Check for deprecated APIs
 - Update quasar.conf.js if needed
