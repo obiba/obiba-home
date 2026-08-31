@@ -5,6 +5,7 @@
 **Scope:** points 1 (crash durability) and 2 (free disk space) of that issue
 **Verified against:** H2 2.4.240 sources, Opal `master` at `4f1357536`, post-`106ad0fb9` (config DB on H2)
 **Target release:** Opal 6.0.0
+**Revised:** 2026-08-31 — D3 replaced after testing: absolute thresholds only, percentages dropped (§3.3, §3.3.1)
 
 ## 1. What the issue got right, and what it got wrong
 
@@ -146,17 +147,56 @@ New `H2Checkpointer`:
 - Watched paths resolved at `start()` from §2. De-duplicate by `Files.getFileStore(p)` so one
   mount is sampled once.
 - Sampler at `${org.obiba.opal.storage.disk.interval:60000}`.
-- **D3. Thresholds as `max(percent, bytes)`.** 5% of 10 TB is 500 GB; 5% of 20 GB is 1 GB. Only
-  one of those is a sane floor.
+- **D3 (revised). Thresholds are absolute byte floors. No percentage, in either direction.**
+  A level answers one question — *is there room left for Opal to do its work?* — and that question
+  has an absolute answer. See §3.3.1 for why the original `max(percent, bytes)` was wrong.
 
-| Level | Percent | Bytes | Behaviour |
+| Level | Bytes | Sized to hold | Behaviour |
 |---|---|---|---|
-| `WARN` | 15 | 5 GiB | log + admin notification, nothing blocked |
-| `DEGRADED` | 5 | 1 GiB | refuse unbounded, user-initiated, restartable writes |
-| `CRITICAL` | 1 | 256 MiB | additionally cancel running writers |
+| `WARN` | 5 GiB | roughly one more ordinary import | log + admin notification, nothing blocked |
+| `DEGRADED` | 2 GiB | config DB writes, logs, MVStore compaction and clean close | refuse unbounded, user-initiated, restartable writes |
+| `CRITICAL` | 512 MiB | the pending pages of the open stores | additionally cancel running writers |
+
+  Each is `org.obiba.opal.storage.disk.<level>.bytes`, and an operator whose imports are far larger
+  than typical raises `warn.bytes` — that is a per-deployment fact, not something a percentage can
+  infer from the volume size.
 
 - **D4. `getUsableSpace() == 0` or `IOException` → `UNKNOWN`, which never blocks.** Log once per
   path behind an `AtomicBoolean`. A broken checker must not become an outage.
+
+### 3.3.1 Why not percentages (revision, after testing)
+
+The original D3 used `max(percent × total, bytes)`. Testing on a real server produced a WARN
+banner reading *"27.64 GB free of 467.89 GB"* — on a volume with ample room for Opal to operate.
+Working the thresholds out on those numbers shows the shape of the error:
+
+| Level | Threshold on a 467.89 GB volume | Free space at the time |
+|---|---|---|
+| `WARN` | `max(15% = 70.2 GB, 5 GiB)` = **70.2 GB** | 27.64 GB — warned |
+| `DEGRADED` | `max(5% = 23.4 GB, 1 GiB)` = **23.4 GB** | 27.64 GB — **4 GB from refusing every import** |
+| `CRITICAL` | `max(1% = 4.7 GB, 256 MiB)` = **4.7 GB** | — |
+
+A percentage measures how *full* a volume is. Nothing in this plan cares about that. Every
+consumer of a level asks whether a specific amount of work still fits: an import needs bytes, a
+clean MVStore close needs bytes, an upload needs `Content-Length × safetyFactor` bytes. None of
+those requirements grows when the volume does — so a threshold that grows with the volume gets
+strictly more wrong the larger the disk, and demands 70 GB of headroom from a 468 GB volume for no
+reason anyone can state. Enforcement would have made this an outage rather than a banner.
+
+`max()` was chosen to fix the *opposite* failure: 5% of a 20 GB volume is 1 GB, small enough for a
+single import to cross without warning. But that argument was never an argument for percentages —
+it was an argument that the absolute floor is the part carrying the meaning, with `max()` bolted on
+to stop the percentage doing damage at the small end. Removing the percentage removes both
+failures at once, and leaves three numbers an administrator can read off and reason about.
+
+The keys are dropped rather than defaulted to `0`: they have never been in a release, so there is
+no compatibility cost, and leaving a knob in place that is wrong whenever it is used is worse than
+not having it.
+
+**One edge remains**, and it is a configuration error rather than a policy flaw: a threshold larger
+than the volume itself pins that level permanently on — `warn.bytes` = 5 GiB on a 4 GB container
+volume never reads `OK`. Log it once at `start()`, naming the volume and the threshold, instead of
+clamping silently. A volume too small to hold the floor is a fact worth saying out loud.
 
 ### 3.4 Point 2b — enforcement
 
@@ -198,6 +238,11 @@ Reserving a floor also matters for shutdown: compaction and `writeCleanShutdown(
 
 PR2 and PR4 share the scheduler from D1; whichever lands first introduces it.
 
+"Observe before enforcing" earned its place in that table: the first observation run is what
+produced the D3 revision in §3.3.1, before a single job had been refused. Keep
+`org.obiba.opal.storage.disk.enforce=false` until the absolute thresholds have been watched on the
+same deployments.
+
 ## 5. Risks
 
 - **The checkpointer must iterate only the populated cache** (D2). Getting this wrong turns a
@@ -207,6 +252,11 @@ PR2 and PR4 share the scheduler from D1; whichever lands first introduces it.
   is a safety net, not a monitoring system.
 - **PR3 changes user-visible behaviour** — jobs start failing that previously ran. Consider
   shipping it behind `org.obiba.opal.storage.disk.enforce=false` for one release.
+- **A false positive is not a cosmetic bug here.** A level is both a banner and, once enforcement
+  is on, a refusal. The percentage thresholds of the original D3 warned at 27 GB free and would
+  have refused imports at 23 GB, on a volume with nothing wrong with it (§3.3.1). Any future change
+  to the thresholds should be checked against the largest volume Opal is expected to run on, not
+  only the smallest.
 - **Do not attempt recovery after `panic()`.** The store is closed; restart is the only path. The
   checker's job is to make that never happen.
 
