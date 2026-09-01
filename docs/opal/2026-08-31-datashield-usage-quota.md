@@ -5,6 +5,10 @@
 **Scope:** the execution-time quota only; the memory/queueing half of the issue is explicitly dropped
 **Verified against:** Opal `master` at `f3d7310c0`
 **Target release:** Opal 6.0.0
+**Revised:** 2026-08-31 — after implementing phases 0 and 1: usage endpoints moved under `/service/r/quotas`
+(§4.4), `RQuotaUsageDto` lost its redundant `source` field (§4.5), `updateQuota` split from `saveQuota` (§4.2)
+**Revised:** 2026-09-01 — the long window is now **weekly (7 days)**, not monthly (30): `Period.MONTHLY` became
+`Period.WEEKLY` throughout (§1.3, §3.2). Code and tests follow; no data to migrate, the feature is unreleased.
 
 ## 1. What the feature is
 
@@ -44,7 +48,7 @@ Everything below implements that sentence and nothing else.
 |---|---|---|---|
 | 1 | What is consumed? | **R execution time** — the sum of `execution_time_millis` over the user's DataSHIELD sessions | It is already measured (§2.1), it is the thing the issue names, and an idle open session costs nothing. *Rejected:* session wall-clock time (punishes forgetting to close a session, weakly related to load), session count (says nothing about weight). |
 | 2 | How hard is the cut? | **Refuse new DataSHIELD sessions only.** Sessions already open keep working normally | Gentlest on in-flight analyses: nobody loses a workspace or a running `ds.glm` because a counter ticked over. *Rejected:* also rejecting commands in open sessions, and closing over-quota sessions. Both are strictly more code and can be added later (§6). The cost of this choice is stated honestly in §3.4.3. |
-| 3 | What is the period? | **Rolling window** — daily = the last 24 h, monthly = the last 30 days | No month-end cliff and no midnight stampede; a user who runs out regains capacity progressively as old usage ages out. *Rejected:* calendar-aligned periods with a hard reset. Note this reverses the wording of the original request ("reset at the end of its time period") — see §3.2 for the consequences on the UI wording. |
+| 3 | What is the period? | **Rolling window** — daily = the last 24 h, weekly = the last 7 days | No period-end cliff and no midnight stampede; a user who runs out regains capacity progressively as old usage ages out. *Rejected:* calendar-aligned periods with a hard reset. Note this reverses the wording of the original request ("reset at the end of its time period") — see §3.2 for the consequences on the UI wording. |
 | 4 | Which quota applies? | **user > group > system**, first match wins; among several groups, the **most permissive** (largest allowance) | A personal quota is an explicit administrative decision about one person and must not be silently capped by a group or system value. Among groups, being added to a more generous group should help, not be neutralised by a stricter one. *Rejected:* "most restrictive wins" (makes personal exceptions impossible), "group quotas add up" (allowance becomes a function of group-membership bookkeeping). |
 
 ### 1.4 Non-goals for v1
@@ -154,11 +158,11 @@ Quotas are configured in **minutes** and stored in milliseconds, matching the ac
 | period | window |
 |---|---|
 | `DAILY` | now − 24 h → now |
-| `MONTHLY` | now − 30 days → now |
+| `WEEKLY` | now − 7 days → now |
 
 There is no reset instant. Consequences to carry into the UI copy and the documentation:
 
-- the user-facing sentence is *"118 of 120 min used in the last 30 days"*, never *"resets on 1 Oct"*;
+- the user-facing sentence is *"118 of 120 min used in the last 7 days"*, never *"resets on Monday"*;
 - when a user is over quota, the useful thing to tell them is when capacity returns. That is
   computable and cheap: the earliest `updated` among the rows currently counted, plus the window
   length. Reported as `nextCreditDate` (§4.5), rendered as *"some capacity returns in about 6 h"*.
@@ -180,10 +184,10 @@ window start W                              now
 ```
 
 So the estimate **never under-counts**, and the over-count is bounded by the execution time a still-
-active session had accumulated before the window opened. With a 30-day window and a DataSHIELD
+active session had accumulated before the window opened. With a 7-day window and a DataSHIELD
 session timeout of 240 minutes by default (`org.obiba.opal.r.sessionTimeout=240`, with
 `org.obiba.opal.r.sessionTimeout.DataSHIELD` unset in
-`opal-r/src/main/resources/META-INF/defaults.properties:26-27`), the bound is under 0.6% of the
+`opal-r/src/main/resources/META-INF/defaults.properties:26-27`), the bound is under 2.5% of the
 window and can only make the quota stricter, never laxer. That is the right direction for a
 protection mechanism, and it buys a design with no new write path — usage is a single aggregate over
 the table that is already being maintained.
@@ -233,11 +237,11 @@ Worked example:
 
 | configured | user in groups | effective |
 |---|---|---|
-| system 60 min/month | — | 60 min/month |
-| system 60, group `analysts` 120 | `analysts` | 120 min/month |
-| system 60, group `analysts` 120, group `partners` 300 | `analysts`, `partners` | 300 min/month |
-| the above + user quota 90 min/month | `analysts`, `partners` | 90 min/month |
-| the above, user quota disabled | `analysts`, `partners` | 300 min/month |
+| system 60 min/week | — | 60 min/week |
+| system 60, group `analysts` 120 | `analysts` | 120 min/week |
+| system 60, group `analysts` 120, group `partners` 300 | `analysts`, `partners` | 300 min/week |
+| the above + user quota 90 min/week | `analysts`, `partners` | 90 min/week |
+| the above, user quota disabled | `analysts`, `partners` | 300 min/week |
 | nothing configured | any | unlimited |
 
 ### 3.4 Enforcement
@@ -249,7 +253,7 @@ Worked example:
 the numbers:
 
 ```
-DataSHIELD quota exceeded: 121 of 120 minutes used in the last 30 days.
+DataSHIELD quota exceeded: 121 of 120 minutes used in the last 7 days.
 Some capacity returns on 2026-09-02 14:10.
 ```
 
@@ -288,14 +292,14 @@ into a hard limit if it is ever abused.
 
 ```
 DataSHIELD quota
-[████████████████████░░░░]  98 of 120 min used — last 30 days
+[████████████████████░░░░]  98 of 120 min used — last 7 days
 from: group "analysts"
 ```
 
 and when exhausted:
 
 ```
-[████████████████████████]  121 of 120 min used — last 30 days
+[████████████████████████]  121 of 120 min used — last 7 days
 New DataSHIELD sessions are blocked. Some capacity returns in about 6 h.
 ```
 
@@ -309,7 +313,7 @@ DataSHIELD permissions and profiles.
 
 ### 3.6 A worked scenario
 
-`jsmith` belongs to `analysts` (120 min / 30 days). Over the past four weeks he has run 96 minutes of
+`jsmith` belongs to `analysts` (120 min / 7 days). Over the past week he has run 96 minutes of
 DataSHIELD execution time.
 
 1. He opens a session, runs a heavy `ds.glm` for 22 minutes: usage 118 / 120. Nothing happens — he is
@@ -317,9 +321,9 @@ DataSHIELD execution time.
 2. He closes the session, then tries to open a new one for a second analysis: still 118 / 120, allowed.
 3. Three more minutes of execution: 121 / 120. His current session keeps working.
 4. He closes it and tries to open another: **403**, with the message from §3.4.1. His profile page
-   shows the bar full and "some capacity returns in about 9 h" — that being 30 days after the earliest
+   shows the bar full and "some capacity returns in about 9 h" — that being 7 days after the earliest
    session still inside the window.
-5. Nine hours later a 5-minute session from 30 days ago drops out of the window. Usage reads 116 / 120
+5. Nine hours later a 5-minute session from 7 days ago drops out of the window. Usage reads 116 / 120
    and he can open a session again.
 
 No administrator action was needed at any point, which is the property the rolling window buys.
@@ -340,7 +344,7 @@ only its first consumer:
 | `context` | VARCHAR(255) NOT NULL | `"DataSHIELD"` in v1 |
 | `subject_type` | VARCHAR(255) NOT NULL | `SYSTEM` / `GROUP` / `USER` |
 | `principal` | VARCHAR(255) NOT NULL | the user name or group name; **empty string** for `SYSTEM` |
-| `period` | VARCHAR(255) NOT NULL | `DAILY` / `MONTHLY` |
+| `period` | VARCHAR(255) NOT NULL | `DAILY` / `WEEKLY` |
 | `execution_time_limit_millis` | BIGINT NOT NULL | 0 means "no DataSHIELD" |
 | `enabled` | BOOLEAN NOT NULL | |
 
@@ -374,17 +378,25 @@ its neighbours:
 
 ```java
 Optional<RQuota> resolve(String context, String principal);   // §3.3 precedence
-RQuotaUsage usage(String context, String principal);          // resolved quota + used + window + source
-boolean isExceeded(String context, String principal);         // usage().isExceeded()
+RQuotaUsage getUsage(String context, String principal);       // resolved quota + used + window
+boolean isExceeded(String context, String principal);         // getUsage().isExceeded()
 // CRUD for the administration endpoints
 List<RQuota> getQuotas(String context);
-RQuota save(RQuota quota);
-void delete(long id);
+RQuota getQuota(long id);                                     // NoSuchRQuotaException -> 404
+RQuota saveQuota(RQuota quota);                               // upsert on (context, subject)
+RQuota updateQuota(long id, RQuota values);                   // addressed by identifier
+void deleteQuota(long id);
 ```
 
-`RQuotaUsage` is a small value object: the quota (or none), `usedMillis`, `windowStart`,
-`nextCreditDate`, and the resolution `source` (`USER` / `GROUP:<name>` / `SYSTEM` / `NONE`) — the UI
-needs that last one to say *where* a limit comes from.
+`saveQuota` and `updateQuota` are separate on purpose. Creation is an upsert on the natural key —
+saving a second quota for the same subject replaces the first rather than tripping the unique
+constraint. An update addresses one row by its identifier and must be able to change the subject, so
+it loads that row and saves it; moving it onto a subject that already has a quota is then rejected by
+the constraint instead of silently clobbering the other one, which the upsert would do.
+
+`RQuotaUsage` is a small value object: the quota (or none), `usedExecutionTimeMillis`, `windowStart`
+and `nextCreditDate`. It carries no separate "source" field — the quota it holds already says which
+subject it came from, and its absence is what "unlimited" means.
 
 `usedMillis` comes from one aggregate query (§3.2) added to `RSessionActivityRepository`:
 
@@ -439,11 +451,19 @@ working (§3.4.2).
 |---|---|---|
 | `GET /service/r/quotas?context=DataSHIELD` | administrator | list all quotas |
 | `POST /service/r/quotas` | administrator | create |
+| `GET /service/r/quota/{id}` | administrator | read one |
 | `PUT /service/r/quota/{id}` | administrator | update |
 | `DELETE /service/r/quota/{id}` | administrator | delete |
-| `GET /service/r/quota/_usage?context=DataSHIELD&user={principal}` | administrator | any user's effective quota and usage |
-| `GET /service/r/quota/_current?context=DataSHIELD` | **`@NoAuthorization`**, any authenticated user | *own* effective quota and usage |
+| `GET /service/r/quotas/_usage?context=DataSHIELD&user={principal}` | administrator | any user's effective quota and usage |
+| `GET /service/r/quotas/_current?context=DataSHIELD` | **`@NoAuthorization`**, any authenticated user | *own* effective quota and usage |
+| `GET /service/r/activity/_current?context=DataSHIELD` | **`@NoAuthorization`**, any authenticated user | *own* session activities — closes gap 2.4 |
 | `GET /service/r/activity/_current/_summary?context=DataSHIELD` | **`@NoAuthorization`**, any authenticated user | *own* activity summary — closes gap 2.4 |
+
+The two usage endpoints hang off the collection, `/service/r/quotas/…`, rather than off
+`/service/r/quota/…`. JAX-RS would resolve `_usage` against `{id}` correctly — a literal outranks a
+template — but leaving the single-quota path a pure template means nobody has to know that rule to
+read the routing. It also mirrors `/service/r/activity/_summary`, which is how this module already
+hangs sub-resources off a collection.
 
 The `_current` resources take the principal from `SecurityUtils.getSubject()` and ignore any `user`
 parameter, so `@NoAuthorization` cannot be turned into a way to read someone else's numbers. This is
@@ -464,7 +484,7 @@ message RQuotaDto {
   required string context = 2;
   required string subjectType = 3;     // SYSTEM | GROUP | USER
   required string principal = 4;       // "" for SYSTEM
-  required string period = 5;          // DAILY | MONTHLY
+  required string period = 5;          // DAILY | WEEKLY
   required int64 executionTimeLimitMillis = 6;
   required bool enabled = 7;
 }
@@ -472,14 +492,17 @@ message RQuotaDto {
 message RQuotaUsageDto {
   required string context = 1;
   required string user = 2;
-  required string source = 3;                    // USER | GROUP:<name> | SYSTEM | NONE
-  optional RQuotaDto quota = 4;                  // absent when source == NONE
-  required int64 usedExecutionTimeMillis = 5;
-  required string windowStartDate = 6;
-  required bool exceeded = 7;
-  optional string nextCreditDate = 8;            // when capacity next returns
+  optional RQuotaDto quota = 3;                  // absent: no quota applies, i.e. unlimited
+  required int64 usedExecutionTimeMillis = 4;
+  optional string windowStartDate = 5;           // absent when no quota applies
+  required bool exceeded = 6;
+  optional string nextCreditDate = 7;            // when capacity next returns
 }
 ```
+
+`RQuotaUsageDto` has no `source` field: the embedded `RQuotaDto` already carries the `subjectType`
+and `principal` the quota was found under, so the UI reads *where a limit comes from* off the quota
+itself, and reports "unlimited" when there is none.
 
 Dates as `DateTimeType`-formatted strings, matching the activity DTOs.
 
@@ -491,7 +514,7 @@ Dates as `DateTimeType`-formatted strings, matching the activity DTOs.
 | `src/stores/r-quota.ts` *(new)* | admin CRUD + `getCurrentUsage()` + `getUsage(principal)` |
 | `src/stores/profile-activity.ts` | point the self case at `/service/r/activity/_current/_summary`, keep the admin case on the existing endpoint |
 | `src/components/r/RQuotaUsage.vue` *(new)* | the progress-bar block of §3.5; props `principal`, `context` |
-| `src/components/admin/r/RQuotas.vue` *(new)* | the admin table + `AddRQuotaDialog.vue`, modelled on `DatashieldProfiles.vue` |
+| `src/components/admin/r/RQuotas.vue` *(new)* | the admin table + `AddRQuotaDialog.vue`, modelled on `IdentityProvidersList.vue` |
 | `src/pages/ProfilePage.vue` | mount `RQuotaUsage` above the R activity section |
 | `src/pages/AdminProfilePage.vue` | same, for `route.params.principal` |
 | `src/pages/AdminDatashieldPage.vue` | new "Quotas" section |
@@ -521,6 +544,10 @@ cannot today.
   boundary case of §3.2, and a config-persistence test following `AbstractConfigPersistenceTest` —
   which runs with `hbm2ddl.auto=validate` and therefore also proves the changeset matches the entity.
 
+The Quotas table carries a "Used" column, populated from `_usage` for the rows that name a user — a
+group or system quota is what applies to many users and has no single figure of its own. That column
+is what makes this phase demonstrate itself rather than just store rows.
+
 **Demoable:** an administrator defines quotas and reads any user's consumption against them. Nothing
 is blocked.
 
@@ -545,7 +572,7 @@ session is not interrupted.
 |---|---|---|
 | 1 | **An open session bypasses the quota** (§3.4.3) | Accepted for v1, by the enforcement decision. Escalation if needed: (a) call `checkQuota()` from the DataSHIELD command paths (`DataShieldSessionResourceImpl.aggregate`, `DataShieldSymbolResourceImpl.putRestrictedRScript` and friends) — bounds the overrun to one command; (b) have `OpalRSessionManager.checkRSessions`, the existing 60-second sweeper (`:275-278`), close DataSHIELD sessions of over-quota users. Both were offered and declined; neither is foreclosed. |
 | 2 | **A single command can blow far past the quota** | Inherent to a time-based quota with no mid-command control: a `ds.glm` that runs for an hour is billed for an hour after the fact. Rolling windows soften it — the overrun ages out. Not fixable without killing running commands. |
-| 3 | **The over-count of straddling sessions** (§3.2) | Bounded at <0.6% of a 30-day window, and always in the stricter direction. Would become worth fixing only if sessions could live for days; if so, the fix is a bucketed usage table (hourly deltas written from `RServerSessionUpdatedEvent`), not a change to the quota model. |
+| 3 | **The over-count of straddling sessions** (§3.2) | Bounded at <2.5% of a 7-day window, and always in the stricter direction. The shorter window makes this four times larger than it was at 30 days, which is still small; it would become worth fixing if the window shrank again or if sessions could live for days, and the fix is then a bucketed usage table (hourly deltas written from `RServerSessionUpdatedEvent`), not a change to the quota model. |
 | 4 | **`r_session_activities` grows without bound** and is never purged | Pre-existing (the repository's own javadoc calls it out). The quota query is index-bounded by `updated`, so it does not degrade with history, but the table does. A retention policy deserves its own issue. |
 | 5 | **The DataSHIELD client may not surface the 403 message** | Open question (§7). If DSOpal swallows the body, a user sees only "forbidden" and the message is invisible. Mitigated by writing the denial to the DataSHIELD user log, and by the profile page showing the numbers. |
 | 6 | **A user removed from a generous group is cut off at once** | By design — resolution is evaluated at each session creation, not cached. Worth a line in the documentation. |
