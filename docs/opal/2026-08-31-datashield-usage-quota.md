@@ -797,13 +797,17 @@ Ordered so that the measurement is trustworthy before anything is enforced on it
    unaffected; `_test` is unaffected; no quota configured means no enforcement.
    **Demoable:** the whole feature as specified in §1.2.
 
-### Phase 4 — documentation and rollout notes
+### Phase 4 — documentation and rollout notes — **done**
 
-Opal documentation page describing both metrics, the rolling window, the resolution order, and — most
-importantly for data custodians — which metric to choose for which worry, what a user experiences when
-refused, the fact that an open session is not interrupted, and the two upgrade notes: session time
-reads zero for activity recorded before the upgrade, and sessions that run nothing now appear in the
-activity log.
+In `opal-doc`: a **Quotas** section in `web-user-guide/administration/datashield.rst` for the custodian
+— both metrics and which worry each one answers, the rolling window, the resolution order, disabled
+versus zero, the operations, and the audit trail — and, in `web-user-guide/my-profile.rst`, what the
+user sees and what to do about it, which for session time is to close the sessions they are not using
+rather than to wait.
+
+The two upgrade notes belong to the release notes rather than to the user guide, since neither is
+true of a server for longer than a week: session time reads zero for activity recorded before the
+upgrade, and sessions that run nothing now appear in the activity log.
 
 ## 6. Risks and known limits
 
