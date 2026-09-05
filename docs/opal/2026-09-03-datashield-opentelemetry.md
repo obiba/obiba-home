@@ -107,19 +107,28 @@ private void configureOpenTelemetry() {
       .build()
       .getOpenTelemetrySdk();
   OpenTelemetryAppender.install(sdk);
-  Runtime.getRuntime().addShutdownHook(new Thread(sdk::close, "otel-shutdown"));
+  this.openTelemetrySdk = sdk;   // closed by shutdown(), after Jetty
   logAndSystemOut("OpenTelemetry export enabled.");
 }
 ```
 
 **Opt-in, and why.** An autoconfigured SDK defaults to OTLP on `localhost:4317`. Building one
 unconditionally would make every existing installation log connection failures on upgrade. The gate
-accepts all four spellings of the endpoint — `OTEL_EXPORTER_OTLP_ENDPOINT`,
-`OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`, and the two matching system properties. The signal-specific one
-matters: it is valid OpenTelemetry configuration on its own, and a guard that only looked at the
-global variable would silently refuse to start the SDK for it. That defect was in the first cut and
-was caught by writing the documentation, not by any test — which is why `hasOtlpEndpoint` takes the
-environment as a `UnaryOperator` and has its own unit test.
+accepts every spelling of the endpoint — `OTEL_EXPORTER_OTLP_ENDPOINT` and the three signal-specific
+`OTEL_EXPORTER_OTLP_{LOGS,TRACES,METRICS}_ENDPOINT`, as environment variables and as the matching
+system properties. The signal-specific ones matter: each is valid OpenTelemetry configuration on its
+own, and a guard that only looked at the global variable would silently refuse to start the SDK for
+it. That defect was in the first cut and was caught by writing the documentation, not by any test —
+which is why `hasOtlpEndpoint` takes the environment as a `UnaryOperator` and has its own unit test.
+The first fix only added the logs endpoint; review caught that traces and metrics deserve the same.
+
+**Shutdown order.** The first cut closed the SDK from a shutdown hook of its own. Hooks run
+concurrently, so it raced the hook that stops Jetty — and stopping Jetty is what closes the Spring
+context, whose `@PreDestroy` is what ends the open session spans (§3.4). Spans ended on a closed
+processor are dropped, so a restart could lose exactly the traces it was meant to flush. The SDK is
+now a field on `OpalServer` and is closed at the end of `shutdown()`, after Jetty. The `--upgrade`
+JVM installs the no-op too: it loads the same `logback.xml`, and without an install its appenders
+buffer the migration log and complain to stderr when the buffer fills.
 
 Telemetry is never a reason to prevent Opal from starting: the SDK build is wrapped, and a failure
 falls back to the no-op install.
@@ -136,12 +145,20 @@ falls back to the no-op install.
 | `ds_script_in` | `datashield.script.submitted` | `AbstractRestrictedRScriptROperation` |
 | `ds_script_out` | `datashield.script.generated` | `AbstractRestrictedRScriptROperation` |
 | `ds_map` | `datashield.script.mapping` | `AbstractRestrictedRScriptROperation` |
+| `ds_table` | `datashield.table` | symbol resource, assign from a table |
+| `ds_resource` | `datashield.resource` | symbol resource, assign from a resource |
+| `ds_expr` | `datashield.expression` | symbol resource, assign from a string |
+| `r_duration` | `datashield.r.duration` | `RockSession`, around every R server call |
+| `r_size` | `datashield.r.size` | `RockSession`, around every R server call |
 | `username` | `enduser.id` | `DataShieldLog.prepare` |
 | `ip` | `client.address` | preserved by `DataShieldLog.init()` |
 
-The last three appear only on `PARSE` records — they are set while the submitted expression is
-parsed and `DataShieldLog.init()` clears them immediately after — which is why they were missed on
-the first pass and only turned up during phase 4.
+`ds_script_in`, `ds_script_out` and `ds_map` appear only on `PARSE` records — they are set while the
+submitted expression is parsed and `DataShieldLog.init()` clears them immediately after — which is
+why they were missed on the first pass and only turned up during phase 4. `ds_table`, `r_duration`
+and `r_size` were missed the same way, and `ds_resource` and `ds_expr` after that: each is set on
+one code path only. The export test now asserts the whole exported key set of the widest record
+rather than a list of forbidden names, so a new MDC key fails the build until it has been named.
 
 **Mechanism.** The OTel appender reads MDC through exactly one call,
 `ILoggingEvent#getMDCPropertyMap()`, on both the direct path (`LoggingEventMapper`) and the
@@ -164,7 +181,9 @@ appenders, so the SDK reaches `otelraw` through the renamer without any special 
 is the substance of the DataSHIELD security audit trail, not an optional extra. The consequence to
 design around is that the collector becomes a processor of sensitive content and that this stream —
 unlike the log file — leaves the host. `<truncate>ds_eval=512</truncate>` caps the value if payload
-size ever becomes a problem, at the cost of truncating audit evidence.
+size ever becomes a problem, at the cost of truncating audit evidence. The cap is a hard one: a
+truncated value is exactly `max` characters long, ellipsis included — the first cut appended the
+ellipsis after the cut and so exported 515 characters for a limit of 512.
 
 ### 3.3 Phase 3 — tests
 
@@ -197,20 +216,53 @@ surefire's `classpathDependencyExcludes`. Every opal-server test now logs throug
 
 ### 3.4 Phase 4 — traces
 
-Spans on scope `org.obiba.opal.datashield`: `datashield.aggregate`, `.assign`, `.open`, `.close`,
-`.ws_save`, `.ws_restore`. Failures set status `ERROR` and record the exception. Attributes are the
-phase-2 names.
+Spans on scope `org.obiba.opal.datashield`: `datashield.session`, and under it
+`datashield.open`, `.assign`, `.parse`, `.aggregate`, `.close`, `.ws_save`, `.ws_restore`. Failures
+set status `ERROR` and record the exception. Attributes are the phase-2 names.
 
-**Parent linkage.** The original plan called for a JAX-RS `ContainerRequestFilter` to open a request
-span. That is the wrong shape: it would touch every REST endpoint in Opal to serve one feature, and
-it duplicates what the OpenTelemetry Java agent already does better.
+**The trace is the session, not the request.** The first implementation had `DataShieldContext`
+capture `Context.current()` in its constructor, on the request thread, for the same reason it
+captures `MDC.getCopyOfContextMap()` — `RServerSession#executeAsync` queues the operation onto the
+session's consumer thread (`AbstractRServerSession.java:233`), where the request's trace context is
+gone.
 
-Instead `DataShieldContext` captures `Context.current()` in its constructor, on the request thread —
-for the same reason it already captures `MDC.getCopyOfContextMap()`. `RServerSession#executeAsync`
-queues the operation onto the session's consumer thread (`AbstractRServerSession.java:233`), where
-the request's trace context is gone. Capturing it at construction puts the span in the right trace
-either way: under the agent's Jetty span when the agent runs, and as a root span when it does not.
-No filter, and it degrades cleanly.
+That was wrong, and testing it against a live Tempo is what showed it. Opal runs no HTTP server
+instrumentation, so `Context.current()` on the request thread is `Context.root()`: every operation
+became its own root span, and one DataSHIELD session came out as five unrelated single-span traces,
+each saying no more than the log line it came from. A Java agent would not have fixed it either — it
+would have produced one trace per *HTTP request*, and a session is many requests.
+
+The unit an audit trail is read along is the session: it is what `ds_id` identifies in the log file,
+and the only thing that ties a session's operations together across threads and requests. So the
+session is what the trace is. `DataShieldSessionTraces` holds one `datashield.session` span open per
+session id and hands it out as the parent; `DataShieldContext` looks its parent up by `rid` instead
+of taking the ambient context, so the consumer thread stops mattering. The root carries
+`datashield.session.id`, `datashield.profile`, `enduser.id` and `client.address` — the four things a
+trace list is searched on.
+
+**A span held open has to be closed.** An open span is never exported, so a session ending any way
+other than through its CLOSE endpoint would cost the whole trace, not just its root. Sessions do end
+that way: `OpalRSessionManager` expires the idle ones, and they go with their R server.
+`DataShieldSessionTraceReaper` runs on the same cadence as that reaper and ends the traces of the
+sessions the manager no longer holds; `@PreDestroy` ends the rest, so a restart mid-session still
+produces its trace — provided the SDK outlives the Spring context, see *Shutdown order* in §3.1.
+The operations themselves are exported as they end, so the trace is readable while the session is
+still open — which is when a suspect session is most worth watching.
+
+The reaper lists the open traces *before* it asks the manager which sessions are live. The manager
+holds a session before its trace is bound, so a trace bound between the two snapshots is not a
+candidate and cannot be mistaken for gone. The other order — which the first cut had — would end
+the trace of a session opened while the reaper ran, and orphan every operation it went on to run.
+
+**Parsing is traced too**, as its own span on the request thread rather than around the evaluation,
+matching the way the audit log records it. It is the span that carries a refusal: a script the
+restriction turns down never reaches R, and `datashield.parse` with status `ERROR` and the submitted
+expression on it is the thing an auditor opens the trace to find.
+
+**Logs and spans are one view.** `DataShieldLog` writes each record inside the trace of the session
+it belongs to, so the exported copy carries that session's `trace_id` and Grafana can go from a span
+to its audit lines and back. Nothing of this reaches `datashield.log` — the ids belong to the
+exported record, not to the MDC the file encoder writes.
 
 ### 3.5 Phase 5 — metrics
 
@@ -232,6 +284,12 @@ collection time, filtered on `getExecutionContext()`, and cannot go stale.
 **Duration is in seconds** (current OpenTelemetry semantic conventions for duration histograms), and
 rejections are dimensioned by `datashield.quota.metric` (`EXECUTION_TIME` / `SESSION_TIME`) rather
 than by profile — an `RQuota` is held against a user and a metric, not against a profile.
+
+Seconds need buckets of their own. The SDK's default histogram boundaries — 0, 5, 10, 25 … 10000 —
+are laid out for milliseconds; on a histogram in seconds every R operation under five seconds lands
+in the first bucket and the histogram says nothing. The instrument carries explicit boundary advice:
+the semantic conventions' list for a duration in seconds (5 ms to 10 s), extended with 30, 60 and
+300 s because a large assignment can take that long. A test asserts the exported boundaries.
 
 **Cardinality is asserted, not intended.** `datashield.session.id`, `enduser.id`,
 `datashield.script` and `datashield.symbol` never become metric attributes; a symbol is named by the
@@ -336,9 +394,18 @@ The one thing that *does* change: `logback.xml` is a conffile and now carries th
 an admin who edited theirs gets the usual dpkg/rpm prompt. Keeping their own file means pasting the
 `otelraw`/`otelds` block — deliberate, over silently bypassing it.
 
+**And the case where that goes wrong is now audible.** `UpgradeCommand.prepareDistConfigFile()`
+copies `logback.xml` only when there is none, which is right for a file the installation owns — but
+it means an Opal upgraded from before the appenders existed keeps a `logback.xml` that has none, and
+exports its traces and its metrics and not one log record. This happened on the first Docker stack it
+was tried on, where `OPAL_HOME` was a volume older than the change. `OpalServer` now walks the logger
+context after installing the SDK and, when no `OpenTelemetryAppender` is attached anywhere — directly
+or nested inside `MdcRenamingAppender` — prints a warning next to "OpenTelemetry export enabled"
+saying logs will not be exported and where to get the appenders from.
+
 ## 7. Verification
 
-Automated: 26 new tests. opal-core 151, opal-datashield 35, opal-server 37, all passing; the
+Automated: 44 new tests. opal-core 152, opal-datashield 48, opal-server 44, all passing; the
 distribution packages with the SDK, the OTLP exporter and the JDK sender, and without okhttp or
 kotlin-stdlib.
 
@@ -356,6 +423,26 @@ attributes seen:      datashield.action, .profile, .session.id, .script, .symbol
 ```
 
 `opal-server/src/test/resources/otel/` holds the compose file and README to repeat it.
+
+Then against a real DataSHIELD session — open, assign a table, parse, aggregate, submit a script the
+restriction refuses, close — on the `grafana/otel-lgtm` stack of `docker-opal`'s `local-dev` branch.
+Tempo returns one trace for the session:
+
+```
+span                   parent              start_ms    dur_ms  status  script
+datashield.session     -- root --               0.0    1525.1  -
+datashield.open        datashield.session       0.1     105.6  -
+datashield.assign      datashield.session     197.3     368.6  -       x <- opal[CNSIM.CNSIM1]
+datashield.parse       datashield.session     647.4       0.2  -       colnamesDS("x")
+datashield.aggregate   datashield.session     647.9     732.3  -       dsBase::colnamesDS("x")
+datashield.parse       datashield.session    1452.4       0.6  ERROR   system("cat /etc/passwd")
+datashield.close       datashield.session    1519.6       5.1  -
+```
+
+one span per audit line, in order, and the refused script carrying its own status. Loki returns the
+six audit records of the same session, all six on `trace_id 37bfb876…`, the trace above. The keys
+written to `datashield.log` over the same run are unchanged, `ds_eval` and all — no `trace_id` or
+`span_id` reaches the file.
 
 ## 8. Related
 
